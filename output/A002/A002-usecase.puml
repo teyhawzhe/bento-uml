@@ -1,0 +1,30 @@
+@startuml A002-usecase
+
+left to right direction
+title A002 員工訂便當 - Use Case 圖
+
+actor 員工
+actor 系統管理員
+
+rectangle 訂便當系統 {
+  usecase "瀏覽下週便當選項" as UC1
+  usecase "選擇指定工作日的便當" as UC2
+  usecase "取消已訂的便當" as UC3
+  usecase "查看個人訂餐記錄" as UC4
+  usecase "建立菜單" as UC5
+  usecase "設定菜單有效期間" as UC6
+  usecase "取消指定員工的訂餐" as UC7
+}
+
+員工 --> UC1
+員工 --> UC2
+員工 --> UC3
+員工 --> UC4
+
+系統管理員 --> UC5
+系統管理員 --> UC6
+系統管理員 --> UC7
+
+UC5 .> UC6 : <<include>>
+
+@enduml

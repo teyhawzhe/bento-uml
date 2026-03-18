@@ -1,0 +1,44 @@
+@startuml A001-sequence
+
+title A001 內部員工登入驗證 - 序列圖
+
+actor 員工
+participant 前端 as FE
+participant 後端 as BE
+database 資料庫 as DB
+
+員工 -> FE : 輸入帳號與密碼
+FE -> BE : POST /api/auth/login（帳號、密碼）
+BE -> DB : 查詢帳號是否存在
+
+alt 帳號不存在
+  DB --> BE : 查無資料
+  BE --> FE : 回傳錯誤訊息
+  FE --> 員工 : 顯示錯誤訊息
+else 帳號存在
+  DB --> BE : 回傳員工資料
+  BE -> BE : 驗證密碼
+  alt 密碼錯誤
+    BE --> FE : 回傳錯誤訊息
+    FE --> 員工 : 顯示錯誤訊息
+  else 密碼正確
+    BE -> BE : 檢查帳號啟用狀態
+    alt 帳號已停用
+      BE --> FE : 回傳帳號停用訊息
+      FE --> 員工 : 顯示帳號停用訊息
+    else 帳號正常
+      BE -> BE : 產生 JWT Token
+      BE --> FE : 回傳 JWT Token
+      FE -> FE : 儲存 JWT Token
+      FE --> 員工 : 導向系統首頁
+    end
+  end
+end
+
+員工 -> FE : 點擊登出
+FE -> BE : POST /api/auth/logout（JWT Token）
+BE --> FE : 確認登出成功
+FE -> FE : 清除 JWT Token
+FE --> 員工 : 導向登入頁面
+
+@enduml

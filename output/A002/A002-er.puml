@@ -1,0 +1,57 @@
+@startuml A002-er
+
+title A002 員工訂便當 - ER 圖
+
+entity "employees\n員工資料表" as employees {
+  * id : INT <<PK>>
+  --
+  username : VARCHAR（帳號）
+  password_hash : VARCHAR（密碼雜湊）
+  name : VARCHAR（姓名）
+  is_admin : BOOLEAN（是否為管理員）
+  is_active : BOOLEAN（是否啟用）
+  created_at : DATETIME（建立時間）
+  updated_at : DATETIME（更新時間）
+}
+
+entity "suppliers\n供應商資料表" as suppliers {
+  * id : INT <<PK>>
+  --
+  name : VARCHAR（供應商名稱）
+  email : VARCHAR（通知信箱）
+  phone : VARCHAR（聯繫電話）
+  contact_person : VARCHAR（負責人）
+  business_registration_no : VARCHAR（營業登記編號）
+  is_active : BOOLEAN（是否啟用）
+  created_at : DATETIME（建立時間）
+}
+
+entity "menus\n菜單資料表" as menus {
+  * id : INT <<PK>>
+  --
+  supplier_id : INT <<FK>>
+  name : VARCHAR（便當名稱）
+  category : ENUM（類型：肉類/海鮮/素食）
+  description : TEXT（說明）
+  price : DECIMAL（價格）
+  valid_from : DATE（有效起始日）
+  valid_to : DATE（有效結束日）
+  created_by : INT <<FK>>
+  created_at : DATETIME（建立時間）
+}
+
+entity "orders\n訂餐記錄資料表" as orders {
+  * id : INT <<PK>>
+  --
+  employee_id : INT <<FK>>
+  menu_id : INT <<FK>>
+  order_date : DATE（訂餐日期）
+  created_at : DATETIME（建立時間）
+}
+
+suppliers ||--o{ menus : "提供"
+employees ||--o{ menus : "建立"
+employees ||--o{ orders : "訂餐"
+menus ||--o{ orders : "被訂"
+
+@enduml

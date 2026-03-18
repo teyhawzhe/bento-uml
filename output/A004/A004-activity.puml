@@ -1,0 +1,27 @@
+@startuml A004-activity
+
+title A004 系統錯誤通知信箱設定 - 活動圖
+
+start
+
+:管理員進入系統設定頁面;
+:系統顯示目前錯誤通知信箱清單;
+
+if (管理員操作?) then (新增)
+  :輸入 Email;
+  if (格式正確?) then (否)
+    :顯示格式錯誤訊息;
+    stop
+  else (是)
+    :儲存至資料庫;
+    :顯示新增成功;
+    stop
+  endif
+else (刪除)
+  :選擇欲刪除的 Email;
+  :從資料庫移除;
+  :顯示刪除成功;
+  stop
+endif
+
+@enduml

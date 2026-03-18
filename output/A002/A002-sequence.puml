@@ -1,0 +1,63 @@
+@startuml A002-sequence
+
+title A002 員工訂便當 - 序列圖
+
+actor 員工
+actor 系統管理員
+participant 前端 as FE
+participant 後端 as BE
+database 資料庫 as DB
+
+== 管理員建立菜單 ==
+系統管理員 -> FE : 輸入便當資訊與有效期間
+FE -> BE : POST /api/menus（JWT Token）
+BE -> BE : 驗證管理員身份
+BE -> DB : 儲存菜單資料
+DB --> BE : 確認儲存成功
+BE --> FE : 回傳建立成功
+FE --> 系統管理員 : 顯示建立成功
+
+== 員工瀏覽並訂餐 ==
+員工 -> FE : 進入訂餐頁面
+FE -> BE : GET /api/orders/menu（JWT Token）
+BE -> BE : 檢查截止時間（星期五 12:00）
+alt 已截止
+  BE --> FE : 回傳截止提示
+  FE --> 員工 : 顯示截止提示，僅可查看記錄
+else 未截止
+  BE -> DB : 查詢下週有效菜單
+  DB --> BE : 回傳菜單清單
+  BE --> FE : 回傳菜單清單
+  FE --> 員工 : 顯示便當選項
+  員工 -> FE : 選擇日期與便當
+  FE -> BE : POST /api/orders（JWT Token）
+  BE -> DB : 儲存訂餐記錄
+  DB --> BE : 確認儲存成功
+  BE --> FE : 回傳訂餐成功
+  FE --> 員工 : 顯示訂餐成功
+end
+
+== 員工取消訂餐 ==
+員工 -> FE : 點擊取消訂餐
+FE -> BE : DELETE /api/orders/{id}（JWT Token）
+BE -> BE : 檢查截止時間
+alt 已截止
+  BE --> FE : 回傳截止提示
+  FE --> 員工 : 顯示無法取消
+else 未截止
+  BE -> DB : 刪除訂餐記錄
+  DB --> BE : 確認刪除成功
+  BE --> FE : 回傳取消成功
+  FE --> 員工 : 顯示取消成功
+end
+
+== 管理員取消員工訂餐 ==
+系統管理員 -> FE : 選擇取消指定員工訂餐
+FE -> BE : DELETE /api/admin/orders/{id}（JWT Token）
+BE -> BE : 驗證管理員身份
+BE -> DB : 刪除訂餐記錄
+DB --> BE : 確認刪除成功
+BE --> FE : 回傳取消成功
+FE --> 系統管理員 : 顯示取消成功
+
+@enduml

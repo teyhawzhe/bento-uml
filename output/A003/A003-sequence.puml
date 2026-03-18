@@ -1,0 +1,45 @@
+@startuml A003-sequence
+
+title A003 每日供應商訂單通知 - 序列圖
+
+participant "排程系統" as CRON
+participant 後端 as BE
+database 資料庫 as DB
+participant "Email 服務" as MAIL
+
+CRON -> BE : 每日 17:00 觸發排程
+
+BE -> DB : 查詢錯誤通知信箱清單
+DB --> BE : 回傳錯誤通知信箱清單
+
+BE -> DB : 查詢當日所有訂單及對應便當、供應商資訊
+alt 發生系統錯誤
+  DB --> BE : 回傳錯誤
+  BE -> DB : 記錄系統錯誤
+  BE -> MAIL : 發送系統錯誤通知 Email 至錯誤通知信箱清單
+end
+
+DB --> BE : 回傳訂單資料
+
+BE -> BE : 依便當名稱彙整各供應商訂單數量
+alt 發生系統錯誤
+  BE -> DB : 記錄系統錯誤
+  BE -> MAIL : 發送系統錯誤通知 Email 至錯誤通知信箱清單
+end
+
+BE -> BE : 依供應商分組，各自組成通知內容
+
+loop 每個供應商
+  BE -> MAIL : 發送 Email 給對應供應商（含便當名稱與數量）
+  alt 發送成功
+    MAIL --> BE : 回傳發送成功
+    BE -> DB : 記錄發送成功
+  else 發送失敗或異常
+    MAIL --> BE : 回傳失敗或異常訊息
+    BE -> DB : 記錄失敗或異常原因
+    BE -> MAIL : 發送錯誤通知 Email 至錯誤通知信箱清單
+    BE -> DB : 記錄異常通知結果
+  end
+end
+
+@enduml

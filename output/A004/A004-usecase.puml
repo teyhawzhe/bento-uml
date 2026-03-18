@@ -1,0 +1,18 @@
+@startuml A004-usecase
+
+left to right direction
+title A004 系統錯誤通知信箱設定 - Use Case 圖
+
+actor 系統管理員
+
+rectangle 訂便當系統 {
+  usecase "查詢錯誤通知信箱清單" as UC1
+  usecase "新增錯誤通知信箱" as UC2
+  usecase "刪除錯誤通知信箱" as UC3
+}
+
+系統管理員 --> UC1
+系統管理員 --> UC2
+系統管理員 --> UC3
+
+@enduml

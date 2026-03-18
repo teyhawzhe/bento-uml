@@ -1,0 +1,24 @@
+@startuml A003-usecase
+
+left to right direction
+title A003 每日供應商訂單通知 - Use Case 圖
+
+actor "系統（排程）" as SYS
+
+rectangle 訂便當系統 {
+  usecase "每日 17:00 自動執行排程" as UC1
+  usecase "依便當名稱彙整各供應商訂單數量" as UC2
+  usecase "逐一發送 Email 通知對應供應商" as UC3
+  usecase "發送錯誤通知至管理員信箱" as UC4
+  usecase "發送系統錯誤通知至管理員信箱" as UC5
+  usecase "記錄發送結果" as UC6
+}
+
+SYS --> UC1
+UC1 .> UC2 : <<include>>
+UC2 .> UC3 : <<include>>
+UC3 .> UC6 : <<include>>
+UC3 .> UC4 : <<extend>>
+UC2 .> UC5 : <<extend>>
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml A001-activity
+
+title A001 內部員工登入驗證 - 活動圖
+
+start
+
+:員工輸入帳號與密碼;
+:系統驗證帳號是否存在;
+
+if (帳號存在?) then (否)
+  :顯示錯誤訊息;
+  stop
+else (是)
+  :驗證密碼是否正確;
+  if (密碼正確?) then (否)
+    :顯示錯誤訊息;
+    stop
+  else (是)
+    :檢查帳號是否啟用中;
+    if (帳號啟用中?) then (否)
+      :顯示帳號停用訊息;
+      stop
+    else (是)
+      :產生 JWT Token;
+      :回傳 JWT Token 給前端;
+      :前端儲存 JWT Token;
+      :導向系統首頁;
+      stop
+    endif
+  endif
+endif
+
+@enduml

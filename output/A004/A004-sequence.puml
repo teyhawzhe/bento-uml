@@ -1,0 +1,43 @@
+@startuml A004-sequence
+
+title A004 系統錯誤通知信箱設定 - 序列圖
+
+actor 系統管理員
+participant 前端 as FE
+participant 後端 as BE
+database 資料庫 as DB
+
+== 查詢錯誤通知信箱清單 ==
+系統管理員 -> FE : 進入系統設定頁面
+FE -> BE : GET /api/settings/error-emails（JWT Token）
+BE -> BE : 驗證管理員身份
+BE -> DB : 查詢錯誤通知信箱清單
+DB --> BE : 回傳清單資料
+BE --> FE : 回傳清單
+FE --> 系統管理員 : 顯示錯誤通知信箱清單
+
+== 新增錯誤通知信箱 ==
+系統管理員 -> FE : 輸入 Email 並送出
+FE -> BE : POST /api/settings/error-emails（JWT Token）
+BE -> BE : 驗證管理員身份
+BE -> BE : 驗證 Email 格式
+alt 格式錯誤
+  BE --> FE : 回傳格式錯誤訊息
+  FE --> 系統管理員 : 顯示格式錯誤
+else 格式正確
+  BE -> DB : 儲存 Email
+  DB --> BE : 確認儲存成功
+  BE --> FE : 回傳新增成功
+  FE --> 系統管理員 : 顯示新增成功
+end
+
+== 刪除錯誤通知信箱 ==
+系統管理員 -> FE : 選擇欲刪除的 Email
+FE -> BE : DELETE /api/settings/error-emails/{id}（JWT Token）
+BE -> BE : 驗證管理員身份
+BE -> DB : 刪除指定 Email
+DB --> BE : 確認刪除成功
+BE --> FE : 回傳刪除成功
+FE --> 系統管理員 : 顯示刪除成功
+
+@enduml

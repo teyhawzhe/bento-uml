@@ -1,0 +1,43 @@
+@startuml A003-activity
+
+title A003 每日供應商訂單通知 - 活動圖
+
+start
+
+:每日 17:00 排程觸發;
+
+:查詢當日所有訂單;
+if (發生系統錯誤?) then (是)
+  :記錄系統錯誤;
+  :發送系統錯誤通知 Email 至管理員信箱;
+  stop
+endif
+
+:依便當名稱彙整各供應商訂單數量;
+if (發生系統錯誤?) then (是)
+  :記錄系統錯誤;
+  :發送系統錯誤通知 Email 至管理員信箱;
+  stop
+endif
+
+:依供應商分組，各自組成通知內容;
+
+fork
+  :發送 Email 給供應商 A;
+fork again
+  :發送 Email 給供應商 B;
+fork again
+  :發送 Email 給供應商 N;
+end fork
+
+if (全部發送成功?) then (是)
+  :記錄發送成功;
+  stop
+else (否)
+  :記錄失敗或異常原因;
+  :發送錯誤通知 Email 至管理員信箱;
+  :記錄異常結果;
+  stop
+endif
+
+@enduml
