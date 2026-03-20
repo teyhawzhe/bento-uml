@@ -3,14 +3,16 @@
 title A001 內部員工登入驗證 - 序列圖
 
 actor 員工
+actor 管理員
 participant 前端 as FE
 participant 後端 as BE
 database 資料庫 as DB
+participant "Email 服務" as MAIL
 
-員工 -> FE : 輸入帳號與密碼
+== 員工登入流程（/login） ==
+員工 -> FE : 於 /login 輸入帳號與密碼
 FE -> BE : POST /api/auth/login（帳號、密碼）
 BE -> DB : 查詢帳號是否存在
-
 alt 帳號不存在
   DB --> BE : 查無資料
   BE --> FE : 回傳錯誤訊息
@@ -27,7 +29,7 @@ else 帳號存在
       BE --> FE : 回傳帳號停用訊息
       FE --> 員工 : 顯示帳號停用訊息
     else 帳號正常
-      BE -> BE : 產生 JWT Token
+      BE -> BE : 產生 role=employee 的 JWT Token
       BE --> FE : 回傳 JWT Token
       FE -> FE : 儲存 JWT Token
       FE --> 員工 : 導向系統首頁
@@ -40,5 +42,152 @@ FE -> BE : POST /api/auth/logout（JWT Token）
 BE --> FE : 確認登出成功
 FE -> FE : 清除 JWT Token
 FE --> 員工 : 導向登入頁面
+
+== 管理員登入流程（/admin/login） ==
+管理員 -> FE : 於 /admin/login 輸入帳號與密碼
+FE -> BE : POST /api/admin/auth/login（帳號、密碼）
+BE -> DB : 查詢帳號是否存在
+alt 帳號不存在
+  DB --> BE : 查無資料
+  BE --> FE : 回傳錯誤訊息
+  FE --> 管理員 : 顯示錯誤訊息
+else 帳號存在
+  DB --> BE : 回傳員工資料
+  BE -> BE : 驗證密碼
+  alt 密碼錯誤
+    BE --> FE : 回傳錯誤訊息
+    FE --> 管理員 : 顯示錯誤訊息
+  else 密碼正確
+    BE -> BE : 檢查帳號啟用狀態
+    alt 帳號已停用
+      BE --> FE : 回傳帳號停用訊息
+      FE --> 管理員 : 顯示帳號停用訊息
+    else 帳號正常
+      BE -> BE : 產生 role=admin 的 JWT Token
+      BE --> FE : 回傳 JWT Token
+      FE -> FE : 儲存 JWT Token
+      FE --> 管理員 : 導向管理後台首頁
+    end
+  end
+end
+
+== 忘記密碼流程 ==
+員工 -> FE : 點擊「忘記密碼」，輸入 Email
+FE -> BE : POST /api/auth/forgot-password（Email）
+BE -> DB : 查詢 Email 是否存在
+alt Email 不存在
+  DB --> BE : 查無資料
+  BE --> FE : 回傳錯誤訊息
+  FE --> 員工 : 顯示錯誤訊息
+else Email 存在
+  DB --> BE : 回傳員工資料
+  BE -> BE : 產生臨時密碼
+  BE -> DB : 更新 password_hash
+  DB --> BE : 更新成功
+  BE -> MAIL : 寄送臨時密碼至員工 Email
+  MAIL --> BE : 寄送成功
+  BE --> FE : 200 寄送成功
+  FE --> 員工 : 顯示寄送成功提示
+end
+
+== 修改密碼流程 ==
+員工 -> FE : 輸入舊密碼與新密碼
+FE -> BE : PATCH /api/auth/change-password（JWT Token、舊密碼、新密碼）
+BE -> BE : 驗證新密碼格式（8～16 位，須含大小寫字母）
+alt 格式不符
+  BE --> FE : 400 密碼格式錯誤
+  FE --> 員工 : 顯示密碼格式錯誤訊息
+else 格式正確
+  BE -> DB : 查詢員工資料
+  DB --> BE : 回傳員工資料
+  BE -> BE : 驗證舊密碼
+  alt 舊密碼錯誤
+    BE --> FE : 401 舊密碼錯誤
+    FE --> 員工 : 顯示錯誤訊息
+  else 舊密碼正確
+    BE -> DB : 更新 password_hash
+    DB --> BE : 更新成功
+    BE --> FE : 200 修改成功
+    FE -> FE : 清除 JWT Token
+    FE --> 員工 : 顯示修改成功並導向登入頁面
+  end
+end
+
+== 查詢員工清單 ==
+管理員 -> FE : 進入員工管理頁面
+FE -> BE : GET /api/admin/employees（JWT Token）
+BE -> DB : SELECT employees
+DB --> BE : 回傳員工清單
+BE --> FE : 200 回傳員工清單
+FE --> 管理員 : 顯示員工清單
+
+== 新增單一員工帳號 ==
+管理員 -> FE : 輸入員工資料（username、name、email）
+FE -> BE : POST /api/admin/employees（JWT Token）
+BE -> DB : 驗證 username 與 email 是否已存在
+alt 已存在
+  DB --> BE : 回傳衝突資料
+  BE --> FE : 409 帳號或 Email 已存在
+  FE --> 管理員 : 顯示錯誤訊息
+else 不存在
+  BE -> BE : 產生隨機初始密碼
+  BE -> DB : INSERT employees
+  DB --> BE : 新增成功
+  BE -> MAIL : 寄送初始密碼至員工 Email
+  MAIL --> BE : 寄送成功
+  BE --> FE : 201 新增成功
+  FE --> 管理員 : 顯示新增成功
+end
+
+== CSV 批次匯入員工帳號 ==
+管理員 -> FE : 上傳 CSV 檔案
+FE -> BE : POST /api/admin/employees/import（JWT Token、CSV）
+BE -> BE : 逐列驗證欄位完整性
+loop 每一列資料
+  alt 驗證失敗
+    BE -> BE : 記錄錯誤原因，跳過此列
+  else 驗證通過
+    BE -> BE : 產生隨機初始密碼
+    BE -> DB : INSERT employees
+    DB --> BE : 新增成功
+    BE -> MAIL : 寄送初始密碼至員工 Email
+    MAIL --> BE : 寄送成功
+  end
+end
+BE --> FE : 200 回傳匯入結果（成功筆數、失敗筆數與錯誤明細）
+FE --> 管理員 : 顯示匯入結果
+
+== 停用／啟用員工帳號 ==
+管理員 -> FE : 選擇員工並執行停用或啟用
+FE -> BE : PATCH /api/admin/employees/{id}/status（JWT Token、is_active）
+alt 停用
+  BE -> DB : UPDATE employees SET is_active = false
+  DB --> BE : 更新成功
+  BE --> FE : 200 停用成功
+  FE --> 管理員 : 顯示停用成功
+else 啟用
+  BE -> DB : UPDATE employees SET is_active = true
+  DB --> BE : 更新成功
+  BE --> FE : 200 啟用成功
+  FE --> 管理員 : 顯示啟用成功
+end
+
+== 管理員重設員工密碼 ==
+管理員 -> FE : 選擇員工並輸入新密碼
+FE -> BE : PATCH /api/admin/employees/{id}/reset-password（JWT Token、新密碼）
+BE -> BE : 驗證新密碼格式（8～16 位，須含大小寫字母）
+alt 格式不符
+  BE --> FE : 400 密碼格式錯誤
+  FE --> 管理員 : 顯示密碼格式錯誤訊息
+else 格式正確
+  BE -> DB : 更新員工 password_hash
+  DB --> BE : 更新成功
+  BE -> DB : 查詢員工 Email
+  DB --> BE : 回傳員工 Email
+  BE -> MAIL : 寄送 Email 通知員工密碼已被重設
+  MAIL --> BE : 寄送成功
+  BE --> FE : 200 重設成功
+  FE --> 管理員 : 顯示重設成功
+end
 
 @enduml

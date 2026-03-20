@@ -38,6 +38,7 @@ entity "menus\n菜單資料表" as menus {
   valid_to : DATE（有效結束日）
   created_by : INT <<FK>>
   created_at : DATETIME（建立時間）
+  updated_at : DATETIME（更新時間）
 }
 
 entity "orders\n訂餐記錄資料表" as orders {
@@ -46,12 +47,14 @@ entity "orders\n訂餐記錄資料表" as orders {
   employee_id : INT <<FK>>
   menu_id : INT <<FK>>
   order_date : DATE（訂餐日期）
+  created_by : INT <<FK>>
   created_at : DATETIME（建立時間）
 }
 
 suppliers ||--o{ menus : "提供"
 employees ||--o{ menus : "建立"
-employees ||--o{ orders : "訂餐"
+employees ||--o{ orders : "訂餐（employee_id）"
+employees ||--o{ orders : "操作（created_by）"
 menus ||--o{ orders : "被訂"
 
 @enduml

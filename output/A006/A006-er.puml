@@ -1,0 +1,33 @@
+@startuml A006-er
+skinparam linetype ortho
+
+entity "employees" as employees {
+    * id : INTEGER <<PK>>
+    --
+    name : VARCHAR
+    email : VARCHAR
+    ...
+}
+
+entity "orders" as orders {
+    * id : INTEGER <<PK>>
+    --
+    * employee_id : INTEGER <<FK>>
+    * menu_id : INTEGER <<FK>>
+    * order_date : DATE
+    * created_by : INTEGER <<FK>>
+    * created_at : TIMESTAMP
+}
+
+entity "menus" as menus {
+    * id : INTEGER <<PK>>
+    --
+    * supplier_id : INTEGER <<FK>>
+    name : VARCHAR
+    ...
+}
+
+orders }o--|| employees : "employee_id\n(訂餐員工)"
+orders }o--|| employees : "created_by\n(操作者)"
+orders }o--|| menus : "menu_id"
+@enduml

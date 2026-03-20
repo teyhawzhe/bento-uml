@@ -1,0 +1,50 @@
+@startuml A005-er
+
+title A005 月結帳單報表與發信 - ER 圖
+
+entity "suppliers\n廠商資料表" as suppliers {
+  * id : INT <<PK>>
+  --
+  name : VARCHAR（廠商名稱）
+  email : VARCHAR（廠商信箱）
+}
+
+entity "monthly_billing_logs\n月結報表紀錄" as monthly_billing_logs {
+  * id : INT <<PK>>
+  --
+  billing_period_start : DATE（報表起始日）
+  billing_period_end : DATE（報表結束日）
+  supplier_id : INT <<FK>>
+  email_to : VARCHAR（實際發送地址）
+  status : ENUM（pending / sent / failed）
+  error_message : TEXT（失敗原因，可為 NULL）
+  triggered_by : INT <<FK, nullable>>
+  sent_at : DATETIME（實際發送時間，可為 NULL）
+  created_at : DATETIME（建立時間）
+}
+
+entity "orders\n訂單資料表" as orders {
+  * id : INT <<PK>>
+  --
+  （詳見 A002）
+}
+
+entity "menus\n菜單資料表" as menus {
+  * id : INT <<PK>>
+  --
+  price : INT（價格）\n（詳見 A002）
+}
+
+entity "employees\n員工資料表" as employees {
+  * id : INT <<PK>>
+  --
+  （詳見 A001）
+}
+
+suppliers ||--o{ monthly_billing_logs : "產生帳單"
+employees |o--o{ monthly_billing_logs : "triggered_by\n（手動觸發者）"
+suppliers ||--o{ menus : "提供菜單"
+employees ||--o{ orders : "建立訂單"
+menus ||--o{ orders : "包含"
+
+@enduml

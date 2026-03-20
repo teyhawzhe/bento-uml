@@ -7,22 +7,35 @@ actor 員工
 actor 系統管理員
 
 rectangle 訂便當系統 {
-  usecase "登入系統" as UC1
+  usecase "員工登入（/login）" as UC1
   usecase "查看錯誤訊息" as UC2
   usecase "登出系統" as UC3
-  usecase "新增員工帳號" as UC4
-  usecase "停用員工帳號" as UC5
-  usecase "重設員工密碼" as UC6
+  usecase "忘記密碼" as UC4
+  usecase "修改密碼" as UC5
+  usecase "管理員登入（/admin/login）" as UC6
+  usecase "查詢員工清單" as UC11
+  usecase "新增單一員工帳號" as UC7
+  usecase "CSV 批次匯入員工帳號" as UC10
+  usecase "停用員工帳號" as UC8
+  usecase "啟用員工帳號" as UC12
+  usecase "重設員工密碼（Email 通知）" as UC9
 }
 
 員工 --> UC1
 員工 --> UC2
 員工 --> UC3
+員工 --> UC4
+員工 --> UC5
 
-系統管理員 --> UC4
-系統管理員 --> UC5
 系統管理員 --> UC6
+系統管理員 --> UC11
+系統管理員 --> UC7
+系統管理員 --> UC10
+系統管理員 --> UC8
+系統管理員 --> UC12
+系統管理員 --> UC9
 
 UC1 .> UC2 : <<extend>>
+UC6 .> UC2 : <<extend>>
 
 @enduml

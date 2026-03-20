@@ -1,0 +1,29 @@
+@startuml A006-activity
+skinparam activityFontSize 14
+start
+
+:管理員進入訂單總覽頁面;
+
+fork
+    :查詢所有員工訂餐記錄;
+    :輸入篩選條件（日期 / 員工）;
+    :系統回傳符合條件的訂餐清單;
+    stop
+
+fork again
+    :選擇員工與隔日日期（代訂）;
+    :系統檢查是否在批次排程前\n（A003 當日 17:00）;
+
+    if (尚未截止?) then (否)
+        :顯示已超過截止時間提示;
+        stop
+    endif
+
+    :顯示可訂便當選項;
+    :管理員選擇便當並確認;
+    :系統新增訂餐記錄\n（created_by = 管理員）;
+    :顯示新增成功通知;
+    stop
+
+end fork
+@enduml

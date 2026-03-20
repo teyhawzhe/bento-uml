@@ -1,0 +1,143 @@
+@startuml usecase-overview
+left to right direction
+skinparam actorStyle awesome
+
+actor "員工" as Employee
+actor "系統管理員" as Admin
+actor "系統（排程）" as Scheduler
+
+rectangle "A001 內部員工登入驗證" {
+    usecase "員工登入" as A001_UC1
+    usecase "查看錯誤訊息" as A001_UC2
+    usecase "登出系統" as A001_UC3
+    usecase "忘記密碼" as A001_UC4
+    usecase "修改密碼" as A001_UC5
+    usecase "管理員登入" as A001_UC6
+    usecase "查詢員工清單" as A001_UC11
+    usecase "新增員工帳號" as A001_UC7
+    usecase "CSV 批次匯入員工帳號" as A001_UC10
+    usecase "停用員工帳號" as A001_UC8
+    usecase "啟用員工帳號" as A001_UC12
+    usecase "重設員工密碼（Email 通知）" as A001_UC9
+}
+
+rectangle "A002 員工訂便當" {
+    usecase "瀏覽下週便當選項" as A002_UC1
+    usecase "選擇指定工作日的便當" as A002_UC2
+    usecase "更新已訂的便當" as A002_UC8
+    usecase "取消已訂的便當" as A002_UC3
+    usecase "查看個人訂餐記錄" as A002_UC4
+    usecase "建立菜單" as A002_UC5
+    usecase "設定菜單有效期間" as A002_UC6
+    usecase "查詢菜單清單（含歷史）" as A002_UC9
+    usecase "編輯菜單" as A002_UC10
+    usecase "取消指定員工的訂餐" as A002_UC7
+}
+
+rectangle "A003 每日供應商訂單通知" {
+    usecase "每日自動執行排程" as A003_UC1
+    usecase "彙整各供應商隔日訂單" as A003_UC2
+    usecase "發送 Email 通知供應商" as A003_UC3
+    usecase "發送錯誤通知至管理員信箱" as A003_UC4
+    usecase "記錄發送結果" as A003_UC5
+}
+
+rectangle "A004 系統錯誤通知信箱設定" {
+    usecase "查詢錯誤通知信箱清單" as A004_UC1
+    usecase "新增錯誤通知信箱" as A004_UC2
+    usecase "刪除錯誤通知信箱" as A004_UC3
+}
+
+rectangle "A005 月結帳單報表與發信" {
+    usecase "自動觸發月結報表" as A005_UC1
+    usecase "手動觸發月結報表" as A005_UC2
+    usecase "查詢月結報表發送記錄" as A005_UC3
+}
+
+rectangle "A006 管理員代替員工新增訂餐與查詢訂單" {
+    usecase "查詢所有員工訂餐記錄" as A006_UC1
+    usecase "代替員工新增訂餐" as A006_UC2
+    usecase "檢查截止時間（A003 批次排程前）" as A006_UC3
+}
+
+rectangle "A007 管理員管理供應商" {
+    usecase "查詢供應商清單（精確查詢）" as A007_UC1
+    usecase "查詢供應商清單（模糊查詢）" as A007_UC2
+    usecase "查詢單一供應商詳細資料" as A007_UC3
+    usecase "修改供應商資料" as A007_UC4
+    usecase "驗證欄位格式" as A007_UC5
+}
+
+' A001
+Employee --> A001_UC1
+Employee --> A001_UC2
+Employee --> A001_UC3
+Employee --> A001_UC4
+Employee --> A001_UC5
+Admin --> A001_UC6
+Admin --> A001_UC7
+Admin --> A001_UC10
+Admin --> A001_UC8
+Admin --> A001_UC12
+Admin --> A001_UC9
+A001_UC1 .> A001_UC2 : <<extend>>
+A001_UC6 .> A001_UC2 : <<extend>>
+
+' A001 employee list
+Admin --> A001_UC11
+
+' A002
+Employee --> A002_UC1
+Employee --> A002_UC2
+Employee --> A002_UC8
+Employee --> A002_UC3
+Employee --> A002_UC4
+Admin --> A002_UC5
+Admin --> A002_UC6
+Admin --> A002_UC9
+Admin --> A002_UC10
+Admin --> A002_UC7
+A002_UC5 .> A002_UC6 : <<include>>
+
+' A003
+Scheduler --> A003_UC1
+A003_UC1 .> A003_UC2 : <<include>>
+A003_UC2 .> A003_UC3 : <<include>>
+A003_UC3 .> A003_UC5 : <<include>>
+A003_UC3 .> A003_UC4 : <<extend>>
+A003_UC2 .> A003_UC4 : <<extend>>
+
+' A004
+Admin --> A004_UC1
+Admin --> A004_UC2
+Admin --> A004_UC3
+
+' A005
+Scheduler --> A005_UC1
+Admin --> A005_UC2
+Admin --> A005_UC3
+
+' A006
+Admin --> A006_UC1
+Admin --> A006_UC2
+A006_UC2 .> A006_UC3 : <<include>>
+
+rectangle "A008 月結報表收件信箱設定" {
+    usecase "查詢報表收件信箱清單" as A008_UC1
+    usecase "新增報表收件信箱" as A008_UC2
+    usecase "刪除報表收件信箱" as A008_UC3
+}
+
+' A007
+Admin --> A007_UC1
+Admin --> A007_UC2
+Admin --> A007_UC3
+Admin --> A007_UC4
+A007_UC4 .> A007_UC5 : <<include>>
+
+' A008
+Admin --> A008_UC1
+Admin --> A008_UC2
+Admin --> A008_UC3
+
+@enduml

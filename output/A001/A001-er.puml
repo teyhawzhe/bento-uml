@@ -8,6 +8,7 @@ entity "employees\n員工資料表" as employees {
   username : VARCHAR（帳號）
   password_hash : VARCHAR（密碼雜湊）
   name : VARCHAR（姓名）
+  email : VARCHAR（Email，用於忘記密碼寄信）
   is_admin : BOOLEAN（是否為管理員）
   is_active : BOOLEAN（是否啟用）
   created_at : DATETIME（建立時間）

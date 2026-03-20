@@ -1,0 +1,38 @@
+@startuml A008-sequence
+skinparam sequenceMessageAlign center
+
+actor "系統管理員" as Admin
+participant "前端" as Frontend
+participant "後端 API" as API
+database "資料庫" as DB
+
+== 查詢報表收件信箱清單 ==
+Admin -> Frontend : 進入系統設定頁面
+Frontend -> API : GET /api/settings/report-emails
+API -> DB : SELECT report_recipient_emails
+DB --> API : 回傳清單
+API --> Frontend : 200 回傳清單
+Frontend --> Admin : 顯示收件信箱清單
+
+== 新增報表收件信箱 ==
+Admin -> Frontend : 輸入 Email 並送出
+Frontend -> API : POST /api/settings/report-emails
+API -> API : 驗證 Email 格式
+alt 格式錯誤
+    API --> Frontend : 400 Email 格式錯誤
+    Frontend --> Admin : 顯示格式錯誤訊息
+else 格式正確
+    API -> DB : INSERT report_recipient_emails
+    DB --> API : 新增成功
+    API --> Frontend : 201 新增成功
+    Frontend --> Admin : 顯示新增成功
+end
+
+== 刪除報表收件信箱 ==
+Admin -> Frontend : 選擇欲刪除的 Email
+Frontend -> API : DELETE /api/settings/report-emails/{id}
+API -> DB : DELETE report_recipient_emails WHERE id = {id}
+DB --> API : 刪除成功
+API --> Frontend : 200 刪除成功
+Frontend --> Admin : 顯示刪除成功
+@enduml

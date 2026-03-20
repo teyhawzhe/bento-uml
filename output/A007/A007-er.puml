@@ -1,0 +1,25 @@
+@startuml A007-er
+skinparam linetype ortho
+
+entity "suppliers" as suppliers {
+    * id : INTEGER <<PK>> [不可修改]
+    --
+    * name : VARCHAR [可修改]
+    * email : VARCHAR [可修改]
+    * phone : VARCHAR [可修改]
+    * contact_person : VARCHAR [可修改]
+    * business_registration_no : VARCHAR [不可修改]
+    * is_active : BOOLEAN [可修改]
+    * created_at : TIMESTAMP
+}
+
+entity "menus" as menus {
+    * id : INTEGER <<PK>>
+    --
+    * supplier_id : INTEGER <<FK>>
+    name : VARCHAR
+    ...
+}
+
+menus }o--|| suppliers : "supplier_id"
+@enduml

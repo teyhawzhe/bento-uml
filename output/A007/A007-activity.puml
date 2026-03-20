@@ -1,0 +1,35 @@
+@startuml A007-activity
+skinparam activityFontSize 14
+start
+
+:管理員進入供應商管理頁面;
+
+fork
+    :輸入名稱並選擇查詢方式;
+
+    if (查詢方式?) then (精確查詢)
+        :系統以名稱完全符合條件查詢;
+    else (模糊查詢)
+        :系統以名稱包含關鍵字條件查詢;
+    endif
+
+    :回傳符合條件的供應商清單;
+    stop
+
+fork again
+    :從清單選取欲修改的供應商;
+    :系統顯示供應商現有資料\n（id 與 business_registration_no 不可編輯）;
+    :管理員修改可編輯欄位並送出;
+    :系統驗證欄位格式;
+
+    if (驗證通過?) then (否)
+        :顯示錯誤訊息;
+        stop
+    endif
+
+    :更新資料庫;
+    :顯示修改成功;
+    stop
+
+end fork
+@enduml

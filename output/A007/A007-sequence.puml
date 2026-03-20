@@ -1,0 +1,42 @@
+@startuml A007-sequence
+skinparam sequenceMessageAlign center
+
+actor "系統管理員" as Admin
+participant "前端" as Frontend
+participant "後端 API" as API
+database "資料庫" as DB
+
+== 查詢供應商清單 ==
+Admin -> Frontend : 輸入名稱，選擇查詢方式（精確 / 模糊）
+Frontend -> API : GET /api/suppliers?name=&search_type=exact|fuzzy
+alt 精確查詢（search_type=exact）
+    API -> DB : SELECT suppliers WHERE name = {name}
+else 模糊查詢（search_type=fuzzy）
+    API -> DB : SELECT suppliers WHERE name LIKE %{name}%
+end
+DB --> API : 回傳供應商清單
+API --> Frontend : 200 回傳清單
+Frontend --> Admin : 顯示供應商清單
+
+== 查詢單一供應商詳細資料 ==
+Admin -> Frontend : 選取供應商
+Frontend -> API : GET /api/suppliers/{id}
+API -> DB : SELECT suppliers WHERE id = {id}
+DB --> API : 回傳供應商資料
+API --> Frontend : 200 回傳資料
+Frontend --> Admin : 顯示供應商詳細資料\n（id 與 business_registration_no 不可編輯）
+
+== 修改供應商資料 ==
+Admin -> Frontend : 修改可編輯欄位並送出
+Frontend -> API : PATCH /api/suppliers/{id}
+API -> API : 驗證欄位格式（如 email 格式）
+alt 驗證失敗
+    API --> Frontend : 400 欄位格式錯誤
+    Frontend --> Admin : 顯示錯誤訊息
+else 驗證通過
+    API -> DB : UPDATE suppliers WHERE id = {id}
+    DB --> API : 更新成功
+    API --> Frontend : 200 修改成功
+    Frontend --> Admin : 顯示修改成功
+end
+@enduml

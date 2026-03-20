@@ -1,0 +1,20 @@
+@startuml A008-er
+skinparam linetype ortho
+
+entity "report_recipient_emails" as report_emails {
+    * id : INTEGER <<PK>>
+    --
+    * email : VARCHAR
+    * created_by : INTEGER <<FK>>
+    * created_at : TIMESTAMP
+}
+
+entity "employees" as employees {
+    * id : INTEGER <<PK>>
+    --
+    name : VARCHAR
+    ...
+}
+
+report_emails }o--|| employees : "created_by"
+@enduml

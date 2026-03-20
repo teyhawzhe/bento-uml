@@ -1,0 +1,30 @@
+@startuml A006-sequence
+skinparam sequenceMessageAlign center
+
+actor "系統管理員" as Admin
+participant "前端" as Frontend
+participant "後端 API" as API
+database "資料庫" as DB
+
+== 查詢所有員工訂餐記錄 ==
+Admin -> Frontend : 進入訂單總覽，輸入篩選條件
+Frontend -> API : GET /api/admin/orders?date=&employee_id=
+API -> DB : SELECT orders JOIN employees JOIN menus（依篩選條件）
+DB --> API : 回傳訂餐記錄清單（含員工姓名、便當名稱）
+API --> Frontend : 200 回傳清單
+Frontend --> Admin : 顯示訂餐記錄
+
+== 代替員工新增訂餐 ==
+Admin -> Frontend : 選擇員工與隔日便當
+Frontend -> API : POST /api/admin/orders
+API -> API : 檢查是否在批次排程前（A003 每日 17:00）
+alt 已超過截止時間
+    API --> Frontend : 403 已超過截止時間
+    Frontend --> Admin : 顯示截止提示
+else 未超過截止時間
+    API -> DB : INSERT orders\n（created_by = 管理員）
+    DB --> API : 新增成功
+    API --> Frontend : 201 訂餐成功
+    Frontend --> Admin : 顯示成功通知
+end
+@enduml

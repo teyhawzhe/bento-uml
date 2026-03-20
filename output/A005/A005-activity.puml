@@ -1,0 +1,24 @@
+@startuml A005-activity
+
+title A005 月結帳單報表與發信 - 活動圖
+
+start
+
+:每月 15 日排程啟動;
+:計算報表範圍\n（上月 15 日 ～ 當月 14 日）;
+:查詢各廠商訂單記錄;
+:依廠商分組;
+
+while (尚有未處理廠商?) is (是)
+  :依便當名稱彙總數量與小計\n產生該廠商報表內容（含 TOTAL）;
+  :發送 Email 給廠商及管理員;
+  if (發送成功?) then (是)
+    :記錄 status=sent 至 monthly_billing_logs;
+  else (否)
+    :記錄 status=failed 及錯誤原因至 monthly_billing_logs;
+  endif
+endwhile (否)
+
+stop
+
+@enduml

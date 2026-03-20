@@ -1,0 +1,43 @@
+@startuml A005-sequence
+
+title A005 月結帳單報表與發信 - 序列圖
+
+participant 排程系統 as Scheduler
+participant 後端 as BE
+database 資料庫 as DB
+participant Email服務 as Mail
+
+== 月結報表批次處理（每月 15 日） ==
+Scheduler -> BE : 觸發月結報表批次
+BE -> BE : 計算報表範圍（上月 15 日 ～ 當月 14 日）
+BE -> DB : 查詢 orders JOIN menus JOIN suppliers（依報表範圍）
+DB --> BE : 回傳訂單記錄（含廠商、便當名稱、數量、單價）
+BE -> BE : 依廠商分組，依便當名稱彙總數量與小計，產生各廠商報表內容（含 TOTAL）
+
+loop 逐廠商處理
+  BE -> DB : 寫入 monthly_billing_logs（status=pending）
+  BE -> Mail : 發送報表 Email 給廠商（suppliers.email）及管理員
+  alt 發送成功
+    Mail --> BE : 發送成功
+    BE -> DB : 更新 monthly_billing_logs（status=sent、sent_at）
+  else 發送失敗
+    Mail --> BE : 發送失敗（錯誤原因）
+    BE -> DB : 更新 monthly_billing_logs（status=failed、error_message）
+  end
+end
+
+== 管理員手動觸發 ==
+actor 系統管理員 as Admin
+Admin -> BE : POST /api/admin/reports/monthly（JWT Token）
+BE -> BE : 驗證管理員身份
+BE -> Scheduler : 觸發月結報表批次
+BE --> Admin : 回傳觸發成功
+
+== 管理員查詢發送記錄 ==
+Admin -> BE : GET /api/admin/reports/monthly（JWT Token）
+BE -> BE : 驗證管理員身份
+BE -> DB : 查詢 monthly_billing_logs
+DB --> BE : 回傳發送記錄清單
+BE --> Admin : 回傳發送記錄清單
+
+@enduml

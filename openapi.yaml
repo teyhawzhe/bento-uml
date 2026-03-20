@@ -1,0 +1,1193 @@
+openapi: 3.0.3
+info:
+  title: 內部員工訂便當系統 API
+  version: 1.0.0
+
+servers:
+  - url: https://api.example.com
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    # ==================== 共用回應格式 ====================
+
+    ApiSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success]
+        data:
+          type: object
+
+    ApiFailed:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [failed]
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+
+    # ==================== A001 Schemas ====================
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    LoginData:
+      type: object
+      properties:
+        token:
+          type: string
+
+    ForgotPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    ChangePasswordRequest:
+      type: object
+      required: [old_password, new_password]
+      properties:
+        old_password:
+          type: string
+        new_password:
+          type: string
+          minLength: 8
+          maxLength: 16
+
+    Employee:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        is_admin:
+          type: boolean
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateEmployeeRequest:
+      type: object
+      required: [username, name, email]
+      properties:
+        username:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+
+    EmployeeStatusRequest:
+      type: object
+      required: [is_active]
+      properties:
+        is_active:
+          type: boolean
+
+    ResetPasswordRequest:
+      type: object
+      required: [new_password]
+      properties:
+        new_password:
+          type: string
+          minLength: 8
+          maxLength: 16
+
+    ImportResult:
+      type: object
+      properties:
+        success_count:
+          type: integer
+        failure_count:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              row:
+                type: integer
+              reason:
+                type: string
+
+    # ==================== A002 Schemas ====================
+
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        contact_person:
+          type: string
+        business_registration_no:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    CreateSupplierRequest:
+      type: object
+      required: [name, email, phone, contact_person, business_registration_no]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        contact_person:
+          type: string
+        business_registration_no:
+          type: string
+
+    Menu:
+      type: object
+      properties:
+        id:
+          type: integer
+        supplier_id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+          enum: [肉類, 海鮮, 素食]
+        description:
+          type: string
+        price:
+          type: number
+        valid_from:
+          type: string
+          format: date
+        valid_to:
+          type: string
+          format: date
+        created_by:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateMenuRequest:
+      type: object
+      required: [supplier_id, name, category, price, valid_from, valid_to]
+      properties:
+        supplier_id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+          enum: [肉類, 海鮮, 素食]
+        description:
+          type: string
+        price:
+          type: number
+        valid_from:
+          type: string
+          format: date
+        valid_to:
+          type: string
+          format: date
+
+    UpdateMenuRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+          enum: [肉類, 海鮮, 素食]
+        description:
+          type: string
+        price:
+          type: number
+        valid_from:
+          type: string
+          format: date
+        valid_to:
+          type: string
+          format: date
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        employee_id:
+          type: integer
+        employee_name:
+          type: string
+        menu_id:
+          type: integer
+        menu_name:
+          type: string
+        order_date:
+          type: string
+          format: date
+        created_by:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    CreateOrderRequest:
+      type: object
+      required: [menu_id, order_date]
+      properties:
+        menu_id:
+          type: integer
+        order_date:
+          type: string
+          format: date
+
+    UpdateOrderRequest:
+      type: object
+      required: [menu_id]
+      properties:
+        menu_id:
+          type: integer
+
+    AdminCreateOrderRequest:
+      type: object
+      required: [employee_id, menu_id, order_date]
+      properties:
+        employee_id:
+          type: integer
+        menu_id:
+          type: integer
+        order_date:
+          type: string
+          format: date
+
+    # ==================== A004 Schemas ====================
+
+    ErrorEmail:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        created_by:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    CreateEmailRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    # ==================== A005 Schemas ====================
+
+    MonthlyBillingLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        billing_period_start:
+          type: string
+          format: date
+        billing_period_end:
+          type: string
+          format: date
+        supplier_id:
+          type: integer
+        email_to:
+          type: string
+          format: email
+        status:
+          type: string
+          enum: [pending, sent, failed]
+        error_message:
+          type: string
+          nullable: true
+        triggered_by:
+          type: integer
+          nullable: true
+        sent_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    # ==================== A007 Schemas ====================
+
+    UpdateSupplierRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        contact_person:
+          type: string
+        is_active:
+          type: boolean
+
+    # ==================== A008 Schemas ====================
+
+    ReportEmail:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        created_by:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+  # ==================== 共用 Response ====================
+
+  responses:
+    SuccessNoData:
+      description: 操作成功
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiSuccess'
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+
+    BadRequest:
+      description: 格式錯誤
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiFailed'
+
+    Unauthorized:
+      description: 帳號或密碼錯誤
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiFailed'
+
+    Forbidden:
+      description: 已超過截止時間或權限不足
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiFailed'
+
+    NotFound:
+      description: 資源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiFailed'
+
+    Conflict:
+      description: 資料已存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiFailed'
+
+paths:
+
+  # ==================== A001 ====================
+
+  /api/auth/login:
+    post:
+      tags: [A001 員工登入]
+      summary: 員工登入
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登入成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/LoginData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/auth/logout:
+    post:
+      tags: [A001 員工登入]
+      summary: 員工登出
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+
+  /api/auth/forgot-password:
+    post:
+      tags: [A001 員工登入]
+      summary: 忘記密碼（寄送臨時密碼至 Email）
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/auth/change-password:
+    patch:
+      tags: [A001 員工登入]
+      summary: 員工修改密碼（成功後自動登出）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/auth/login:
+    post:
+      tags: [A001 管理員帳號]
+      summary: 管理員登入
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登入成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/LoginData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/employees:
+    get:
+      tags: [A001 管理員帳號]
+      summary: 查詢員工清單
+      responses:
+        '200':
+          description: 員工清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Employee'
+    post:
+      tags: [A001 管理員帳號]
+      summary: 新增單一員工帳號
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmployeeRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/SuccessNoData'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/admin/employees/import:
+    post:
+      tags: [A001 管理員帳號]
+      summary: CSV 批次匯入員工帳號
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 匯入結果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ImportResult'
+
+  /api/admin/employees/{id}/status:
+    patch:
+      tags: [A001 管理員帳號]
+      summary: 停用或啟用員工帳號
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeStatusRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/employees/{id}/reset-password:
+    patch:
+      tags: [A001 管理員帳號]
+      summary: 管理員重設員工密碼（成功後寄 Email 通知）
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== A002 ====================
+
+  /api/orders/menu:
+    get:
+      tags: [A002 員工訂餐]
+      summary: 取得下週便當選項
+      responses:
+        '200':
+          description: 下週有效菜單清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Menu'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/orders:
+    post:
+      tags: [A002 員工訂餐]
+      summary: 新增訂餐（同日已有訂單則覆蓋）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '200':
+          description: 覆蓋成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Order'
+        '201':
+          description: 新增成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Order'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/orders/{id}:
+    patch:
+      tags: [A002 員工訂餐]
+      summary: 更新已訂的便當（截止前）
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrderRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Order'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [A002 員工訂餐]
+      summary: 取消訂餐（截止前）
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/orders/me:
+    get:
+      tags: [A002 員工訂餐]
+      summary: 查詢個人訂餐記錄
+      responses:
+        '200':
+          description: 個人訂餐記錄
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Order'
+
+  /api/menus:
+    get:
+      tags: [A002 菜單管理]
+      summary: 查詢菜單清單（管理員）
+      parameters:
+        - name: include_history
+          in: query
+          schema:
+            type: boolean
+          description: true 時包含已過期的歷史菜單
+      responses:
+        '200':
+          description: 菜單清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Menu'
+    post:
+      tags: [A002 菜單管理]
+      summary: 管理員建立菜單
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMenuRequest'
+      responses:
+        '201':
+          description: 建立成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Menu'
+
+  /api/menus/{id}:
+    patch:
+      tags: [A002 菜單管理]
+      summary: 管理員編輯菜單
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMenuRequest'
+      responses:
+        '200':
+          description: 編輯成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Menu'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/suppliers:
+    post:
+      tags: [A002 供應商]
+      summary: 管理員新增供應商
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSupplierRequest'
+      responses:
+        '201':
+          description: 新增成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Supplier'
+
+  /api/admin/orders:
+    get:
+      tags: [A006 管理員訂單]
+      summary: 查詢所有員工訂餐記錄（含員工姓名、便當名稱）
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: employee_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 訂餐記錄清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Order'
+    post:
+      tags: [A006 管理員訂單]
+      summary: 管理員代替員工新增訂餐
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCreateOrderRequest'
+      responses:
+        '201':
+          description: 代訂成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Order'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/orders/{id}:
+    delete:
+      tags: [A002 菜單管理]
+      summary: 管理員取消指定員工訂餐
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== A004 ====================
+
+  /api/settings/error-emails:
+    get:
+      tags: [A004 錯誤通知信箱]
+      summary: 查詢錯誤通知信箱清單
+      responses:
+        '200':
+          description: 信箱清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ErrorEmail'
+    post:
+      tags: [A004 錯誤通知信箱]
+      summary: 新增錯誤通知信箱
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmailRequest'
+      responses:
+        '201':
+          description: 新增成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ErrorEmail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/settings/error-emails/{id}:
+    delete:
+      tags: [A004 錯誤通知信箱]
+      summary: 刪除錯誤通知信箱
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== A005 ====================
+
+  /api/admin/reports/monthly:
+    post:
+      tags: [A005 月結報表]
+      summary: 手動觸發月結報表產生與發信
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+    get:
+      tags: [A005 月結報表]
+      summary: 查詢月結報表發送記錄
+      responses:
+        '200':
+          description: 發送記錄清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MonthlyBillingLog'
+
+  # ==================== A007 ====================
+
+  /api/suppliers/query:
+    get:
+      tags: [A007 供應商管理]
+      summary: 查詢供應商清單（支援精確與模糊查詢）
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: search_type
+          in: query
+          schema:
+            type: string
+            enum: [exact, fuzzy]
+      responses:
+        '200':
+          description: 供應商清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Supplier'
+
+  /api/suppliers/{id}:
+    get:
+      tags: [A007 供應商管理]
+      summary: 查詢單一供應商詳細資料
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 供應商詳細資料
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Supplier'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [A007 供應商管理]
+      summary: 修改供應商資料（id 與 business_registration_no 不可修改）
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSupplierRequest'
+      responses:
+        '200':
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Supplier'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== A008 ====================
+
+  /api/settings/report-emails:
+    get:
+      tags: [A008 報表收件信箱]
+      summary: 查詢報表收件信箱清單
+      responses:
+        '200':
+          description: 信箱清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ReportEmail'
+    post:
+      tags: [A008 報表收件信箱]
+      summary: 新增報表收件信箱
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmailRequest'
+      responses:
+        '201':
+          description: 新增成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ReportEmail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/settings/report-emails/{id}:
+    delete:
+      tags: [A008 報表收件信箱]
+      summary: 刪除報表收件信箱
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+        '404':
+          $ref: '#/components/responses/NotFound'

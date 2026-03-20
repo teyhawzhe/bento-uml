@@ -17,6 +17,22 @@ DB --> BE : 確認儲存成功
 BE --> FE : 回傳建立成功
 FE --> 系統管理員 : 顯示建立成功
 
+== 管理員查詢菜單清單 ==
+系統管理員 -> FE : 進入菜單管理頁面（可選擇含歷史）
+FE -> BE : GET /api/menus?include_history=true|false（JWT Token）
+BE -> DB : 查詢菜單（依 include_history 決定是否含過期）
+DB --> BE : 回傳菜單清單
+BE --> FE : 200 回傳菜單清單
+FE --> 系統管理員 : 顯示菜單清單
+
+== 管理員編輯菜單 ==
+系統管理員 -> FE : 選取菜單並修改欄位
+FE -> BE : PATCH /api/menus/{id}（JWT Token）
+BE -> DB : UPDATE menus WHERE id = {id}
+DB --> BE : 更新成功
+BE --> FE : 200 編輯成功
+FE --> 系統管理員 : 顯示編輯成功
+
 == 員工瀏覽並訂餐 ==
 員工 -> FE : 進入訂餐頁面
 FE -> BE : GET /api/orders/menu（JWT Token）
@@ -31,16 +47,38 @@ else 未截止
   FE --> 員工 : 顯示便當選項
   員工 -> FE : 選擇日期與便當
   FE -> BE : POST /api/orders（JWT Token）
-  BE -> DB : 儲存訂餐記錄
-  DB --> BE : 確認儲存成功
-  BE --> FE : 回傳訂餐成功
+  BE -> DB : 查詢該員工該日是否已有訂單
+  alt 已有訂單
+    DB --> BE : 回傳現有訂單
+    BE -> DB : UPDATE orders（覆蓋為新便當）
+    DB --> BE : 更新成功
+    BE --> FE : 200 訂餐成功（覆蓋）
+  else 尚無訂單
+    BE -> DB : INSERT orders
+    DB --> BE : 新增成功
+    BE --> FE : 201 訂餐成功
+  end
   FE --> 員工 : 顯示訂餐成功
+end
+
+== 員工更新訂餐 ==
+員工 -> FE : 選擇已訂便當並更換
+FE -> BE : PATCH /api/orders/{id}（JWT Token）
+BE -> BE : 檢查截止時間（星期五 12:00）
+alt 已截止
+  BE --> FE : 回傳截止提示
+  FE --> 員工 : 顯示無法更新
+else 未截止
+  BE -> DB : UPDATE orders SET menu_id = 新便當
+  DB --> BE : 更新成功
+  BE --> FE : 200 更新成功
+  FE --> 員工 : 顯示更新成功
 end
 
 == 員工取消訂餐 ==
 員工 -> FE : 點擊取消訂餐
 FE -> BE : DELETE /api/orders/{id}（JWT Token）
-BE -> BE : 檢查截止時間
+BE -> BE : 檢查截止時間（星期五 12:00）
 alt 已截止
   BE --> FE : 回傳截止提示
   FE --> 員工 : 顯示無法取消
@@ -55,9 +93,15 @@ end
 系統管理員 -> FE : 選擇取消指定員工訂餐
 FE -> BE : DELETE /api/admin/orders/{id}（JWT Token）
 BE -> BE : 驗證管理員身份
-BE -> DB : 刪除訂餐記錄
-DB --> BE : 確認刪除成功
-BE --> FE : 回傳取消成功
-FE --> 系統管理員 : 顯示取消成功
+BE -> BE : 檢查是否在批次排程前（訂餐日前一日 17:00）
+alt 已超過截止時間
+  BE --> FE : 403 已超過截止時間
+  FE --> 系統管理員 : 顯示截止提示，無法取消
+else 未超過截止時間
+  BE -> DB : 刪除訂餐記錄
+  DB --> BE : 確認刪除成功
+  BE --> FE : 回傳取消成功
+  FE --> 系統管理員 : 顯示取消成功
+end
 
 @enduml

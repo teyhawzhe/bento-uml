@@ -1,0 +1,19 @@
+@startuml A005-usecase
+
+left to right direction
+title A005 月結帳單報表與發信 - Use Case 圖
+
+actor 系統排程 as Scheduler
+actor 系統管理員 as Admin
+
+rectangle 訂便當系統 {
+  usecase "自動觸發月結報表" as UC1
+  usecase "手動觸發月結報表" as UC2
+  usecase "查詢月結報表發送記錄" as UC3
+}
+
+Scheduler --> UC1
+Admin --> UC2
+Admin --> UC3
+
+@enduml

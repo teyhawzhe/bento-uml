@@ -2,32 +2,131 @@
 
 title A001 內部員工登入驗證 - 活動圖
 
+|員工登入流程|
 start
-
-:員工輸入帳號與密碼;
+:員工於 /login 輸入帳號與密碼;
 :系統驗證帳號是否存在;
-
 if (帳號存在?) then (否)
   :顯示錯誤訊息;
   stop
-else (是)
-  :驗證密碼是否正確;
-  if (密碼正確?) then (否)
-    :顯示錯誤訊息;
-    stop
-  else (是)
-    :檢查帳號是否啟用中;
-    if (帳號啟用中?) then (否)
-      :顯示帳號停用訊息;
-      stop
-    else (是)
-      :產生 JWT Token;
-      :回傳 JWT Token 給前端;
-      :前端儲存 JWT Token;
-      :導向系統首頁;
-      stop
-    endif
-  endif
 endif
+:驗證密碼是否正確;
+if (密碼正確?) then (否)
+  :顯示錯誤訊息;
+  stop
+endif
+:檢查帳號是否啟用中;
+if (帳號啟用中?) then (否)
+  :顯示帳號停用訊息;
+  stop
+endif
+:產生 role=employee 的 JWT Token;
+:導向系統首頁;
+stop
+
+|管理員登入流程|
+start
+:管理員於 /admin/login 輸入帳號與密碼;
+:系統驗證帳號是否存在;
+if (帳號存在?) then (否)
+  :顯示錯誤訊息;
+  stop
+endif
+:驗證密碼是否正確;
+if (密碼正確?) then (否)
+  :顯示錯誤訊息;
+  stop
+endif
+:檢查帳號是否啟用中;
+if (帳號啟用中?) then (否)
+  :顯示帳號停用訊息;
+  stop
+endif
+:產生 role=admin 的 JWT Token;
+:導向管理後台首頁;
+stop
+
+|忘記密碼流程|
+start
+:員工點擊「忘記密碼」，輸入 Email;
+:系統查詢 Email 是否存在;
+if (Email 存在?) then (否)
+  :顯示錯誤訊息;
+  stop
+endif
+:產生臨時密碼並更新 password_hash;
+:寄送臨時密碼至員工 Email;
+:顯示寄送成功提示;
+stop
+
+|修改密碼流程|
+start
+:員工輸入舊密碼與新密碼;
+:系統驗證新密碼格式\n（8～16 位，須含大小寫字母）;
+if (格式正確?) then (否)
+  :顯示密碼格式錯誤訊息;
+  stop
+endif
+:系統驗證舊密碼是否正確;
+if (舊密碼正確?) then (否)
+  :顯示錯誤訊息;
+  stop
+endif
+:更新 password_hash;
+:顯示修改成功;
+:系統自動登出，清除 JWT Token;
+:導向登入頁面;
+stop
+
+|新增單一員工帳號流程|
+start
+:管理員輸入員工資料\n（username、name、email）;
+:系統驗證 username 與 email 是否已存在;
+if (已存在?) then (是)
+  :顯示錯誤訊息;
+  stop
+endif
+:建立員工帳號，產生隨機初始密碼;
+:寄送初始密碼至員工 Email;
+:顯示新增成功;
+stop
+
+|CSV 批次匯入員工帳號流程|
+start
+:管理員上傳 CSV 檔案\n（欄位：username、name、email）;
+:系統逐列驗證欄位是否完整;
+fork
+  :驗證失敗的列\n記錄錯誤原因，跳過不匯入;
+fork again
+  :驗證通過的列\n建立帳號，產生隨機初始密碼;
+  :寄送初始密碼至員工 Email;
+end fork
+:回傳匯入結果\n（成功筆數、失敗筆數與錯誤明細）;
+stop
+
+|停用／啟用員工帳號流程|
+start
+:管理員從員工清單選擇目標員工;
+if (操作類型?) then (停用)
+  :系統將 is_active 設為 false;
+  :顯示停用成功;
+else (啟用)
+  :系統將 is_active 設為 true;
+  :顯示啟用成功;
+endif
+stop
+
+|管理員重設員工密碼流程|
+start
+:管理員選擇員工並輸入新密碼;
+:系統驗證新密碼格式\n（8～16 位，須含大小寫字母）;
+if (格式正確?) then (否)
+  :顯示密碼格式錯誤訊息;
+  stop
+endif
+:更新員工 password_hash;
+:寄送 Email 通知員工密碼已被重設;
+:顯示重設成功;
+stop
 
 @enduml

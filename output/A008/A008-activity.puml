@@ -1,0 +1,29 @@
+@startuml A008-activity
+skinparam activityFontSize 14
+start
+
+:管理員進入系統設定頁面;
+
+fork
+    :查看報表收件信箱清單;
+    stop
+
+fork again
+    :輸入 Email 並新增;
+    :系統驗證 Email 格式;
+    if (格式正確?) then (否)
+        :顯示格式錯誤訊息;
+        stop
+    endif
+    :寫入資料庫;
+    :顯示新增成功;
+    stop
+
+fork again
+    :選擇欲刪除的 Email;
+    :系統從資料庫移除;
+    :顯示刪除成功;
+    stop
+
+end fork
+@enduml
