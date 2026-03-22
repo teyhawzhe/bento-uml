@@ -1,0 +1,48 @@
+@startuml A009-activity
+
+start
+
+:使用者登入成功;
+:系統解析 JWT 取得角色資訊;
+
+if (角色？) then (員工)
+    :直接導向員工 TAB 主頁\n（預設顯示「訂便當」頁籤）;
+else (管理員)
+    :直接導向管理員 TAB 主頁\n（預設顯示「訂單管理」頁籤）;
+endif
+
+note right
+  不顯示「員工入口」
+  與「管理員入口」選擇頁
+end note
+
+:使用者點擊 TAB 頁籤;
+:切換至對應功能頁面（不重整整頁）;
+:使用者執行功能操作;
+
+if (操作類型？) then (刪除操作)
+    :顯示確認 MessageBox\n（含「確認」與「取消」按鈕）;
+    if (使用者選擇？) then (確認)
+        :執行刪除;
+    else (取消)
+        :取消操作;
+        stop
+    endif
+else (新增 / 修改 / 查詢)
+    :送出請求至後端;
+endif
+
+if (後端回應？) then (成功)
+    :顯示成功 MessageBox;
+elseif (表單驗證失敗) then (驗證失敗)
+    :顯示警告 MessageBox\n（顯示欄位錯誤原因）;
+else (系統錯誤)
+    :顯示錯誤 MessageBox\n（顯示錯誤原因）;
+endif
+
+:使用者點擊 MessageBox 確認按鈕;
+:關閉 MessageBox;
+
+stop
+
+@enduml

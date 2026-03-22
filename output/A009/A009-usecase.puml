@@ -1,0 +1,50 @@
+@startuml A009-usecase
+left to right direction
+
+actor 員工
+actor 管理員
+
+rectangle "A009 前端介面 TAB 分頁與訊息提示" {
+    rectangle "登入後導向" {
+        usecase "登入後直接進入員工 TAB 主頁" as UC_ROUTE1
+        usecase "登入後直接進入管理員 TAB 主頁" as UC_ROUTE2
+    }
+
+    rectangle "員工 TAB 頁籤" {
+        usecase "切換至訂便當頁籤" as UC_EMP_TAB1
+        usecase "切換至我的訂單頁籤" as UC_EMP_TAB2
+    }
+
+    rectangle "管理員 TAB 頁籤" {
+        usecase "切換至訂單管理頁籤" as UC_ADM_TAB1
+        usecase "切換至供應商管理頁籤" as UC_ADM_TAB2
+        usecase "切換至報表設定頁籤" as UC_ADM_TAB3
+        usecase "切換至系統設定頁籤" as UC_ADM_TAB4
+    }
+
+    rectangle "MessageBox 提示" {
+        usecase "顯示操作成功訊息" as UC_MSG1
+        usecase "顯示錯誤訊息" as UC_MSG2
+        usecase "顯示警告訊息" as UC_MSG3
+        usecase "顯示刪除確認訊息" as UC_MSG4
+    }
+}
+
+員工 --> UC_ROUTE1
+員工 --> UC_EMP_TAB1
+員工 --> UC_EMP_TAB2
+員工 --> UC_MSG1
+員工 --> UC_MSG2
+員工 --> UC_MSG3
+
+管理員 --> UC_ROUTE2
+管理員 --> UC_ADM_TAB1
+管理員 --> UC_ADM_TAB2
+管理員 --> UC_ADM_TAB3
+管理員 --> UC_ADM_TAB4
+管理員 --> UC_MSG1
+管理員 --> UC_MSG2
+管理員 --> UC_MSG3
+管理員 --> UC_MSG4
+
+@enduml

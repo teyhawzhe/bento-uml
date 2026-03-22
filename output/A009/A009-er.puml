@@ -1,0 +1,29 @@
+@startuml A009-er
+
+entity "使用者角色\nuser_role" as UserRole {
+    * role_id : INT <<PK>>
+    --
+    role_name : VARCHAR(20)
+}
+
+entity "TAB 頁籤設定\ntab_config" as TabConfig {
+    * tab_id : INT <<PK>>
+    --
+    * role_id : INT <<FK>>
+    tab_name : VARCHAR(50)
+    tab_order : INT
+    feature_key : VARCHAR(50)
+    is_active : BOOLEAN
+}
+
+entity "MessageBox 類型\nmessagebox_type" as MsgBoxType {
+    * type_id : INT <<PK>>
+    --
+    type_name : VARCHAR(20)
+    has_cancel_button : BOOLEAN
+}
+
+UserRole ||--o{ TabConfig : "擁有"
+MsgBoxType ||--o{ TabConfig : "使用（操作回饋類型）"
+
+@enduml

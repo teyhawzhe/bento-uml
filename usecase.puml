@@ -7,39 +7,40 @@ actor "系統管理員" as Admin
 actor "系統（排程）" as Scheduler
 
 rectangle "A001 內部員工登入驗證" {
-    usecase "員工登入" as A001_UC1
+    usecase "員工登入（/login）" as A001_UC1
     usecase "查看錯誤訊息" as A001_UC2
     usecase "登出系統" as A001_UC3
     usecase "忘記密碼" as A001_UC4
     usecase "修改密碼" as A001_UC5
-    usecase "管理員登入" as A001_UC6
-    usecase "查詢員工清單" as A001_UC11
-    usecase "新增員工帳號" as A001_UC7
-    usecase "CSV 批次匯入員工帳號" as A001_UC10
-    usecase "停用員工帳號" as A001_UC8
-    usecase "啟用員工帳號" as A001_UC12
-    usecase "重設員工密碼（Email 通知）" as A001_UC9
+    usecase "管理員登入（/admin/login）" as A001_UC6
+    usecase "查詢員工清單" as A001_UC7
+    usecase "新增單一員工帳號" as A001_UC8
+    usecase "CSV 批次匯入員工帳號" as A001_UC9
+    usecase "停用員工帳號" as A001_UC10
+    usecase "啟用員工帳號" as A001_UC11
+    usecase "重設員工密碼（Email 通知）" as A001_UC12
 }
 
 rectangle "A002 員工訂便當" {
     usecase "瀏覽下週便當選項" as A002_UC1
     usecase "選擇指定工作日的便當" as A002_UC2
-    usecase "更新已訂的便當" as A002_UC8
-    usecase "取消已訂的便當" as A002_UC3
-    usecase "查看個人訂餐記錄" as A002_UC4
-    usecase "建立菜單" as A002_UC5
-    usecase "設定菜單有效期間" as A002_UC6
-    usecase "查詢菜單清單（含歷史）" as A002_UC9
-    usecase "編輯菜單" as A002_UC10
-    usecase "取消指定員工的訂餐" as A002_UC7
+    usecase "更新已訂的便當" as A002_UC3
+    usecase "取消已訂的便當" as A002_UC4
+    usecase "查看個人訂餐記錄" as A002_UC5
+    usecase "建立菜單" as A002_UC6
+    usecase "設定菜單有效期間" as A002_UC7
+    usecase "查詢菜單清單（含歷史）" as A002_UC8
+    usecase "編輯菜單" as A002_UC9
+    usecase "取消指定員工的訂餐" as A002_UC10
 }
 
 rectangle "A003 每日供應商訂單通知" {
-    usecase "每日自動執行排程" as A003_UC1
-    usecase "彙整各供應商隔日訂單" as A003_UC2
-    usecase "發送 Email 通知供應商" as A003_UC3
+    usecase "每日 17:00 自動執行排程" as A003_UC1
+    usecase "依便當名稱彙整各供應商訂單數量" as A003_UC2
+    usecase "逐一發送 Email 通知對應供應商" as A003_UC3
     usecase "發送錯誤通知至管理員信箱" as A003_UC4
-    usecase "記錄發送結果" as A003_UC5
+    usecase "發送系統錯誤通知至管理員信箱" as A003_UC5
+    usecase "記錄發送結果" as A003_UC6
 }
 
 rectangle "A004 系統錯誤通知信箱設定" {
@@ -68,6 +69,25 @@ rectangle "A007 管理員管理供應商" {
     usecase "驗證欄位格式" as A007_UC5
 }
 
+rectangle "A008 月結報表收件信箱設定" {
+    usecase "查詢報表收件信箱清單" as A008_UC1
+    usecase "新增報表收件信箱" as A008_UC2
+    usecase "刪除報表收件信箱" as A008_UC3
+}
+
+rectangle "A009 前端介面 TAB 分頁與訊息提示規範" {
+    usecase "切換至訂便當頁籤" as A009_UC1
+    usecase "切換至我的訂單頁籤" as A009_UC2
+    usecase "切換至訂單管理頁籤" as A009_UC3
+    usecase "切換至供應商管理頁籤" as A009_UC4
+    usecase "切換至報表設定頁籤" as A009_UC5
+    usecase "切換至系統設定頁籤" as A009_UC6
+    usecase "顯示操作成功訊息" as A009_UC7
+    usecase "顯示錯誤訊息" as A009_UC8
+    usecase "顯示警告訊息" as A009_UC9
+    usecase "顯示刪除確認訊息" as A009_UC10
+}
+
 ' A001
 Employee --> A001_UC1
 Employee --> A001_UC2
@@ -76,36 +96,34 @@ Employee --> A001_UC4
 Employee --> A001_UC5
 Admin --> A001_UC6
 Admin --> A001_UC7
-Admin --> A001_UC10
 Admin --> A001_UC8
-Admin --> A001_UC12
 Admin --> A001_UC9
+Admin --> A001_UC10
+Admin --> A001_UC11
+Admin --> A001_UC12
 A001_UC1 .> A001_UC2 : <<extend>>
 A001_UC6 .> A001_UC2 : <<extend>>
-
-' A001 employee list
-Admin --> A001_UC11
 
 ' A002
 Employee --> A002_UC1
 Employee --> A002_UC2
-Employee --> A002_UC8
 Employee --> A002_UC3
 Employee --> A002_UC4
-Admin --> A002_UC5
+Employee --> A002_UC5
 Admin --> A002_UC6
+Admin --> A002_UC7
+Admin --> A002_UC8
 Admin --> A002_UC9
 Admin --> A002_UC10
-Admin --> A002_UC7
-A002_UC5 .> A002_UC6 : <<include>>
+A002_UC6 .> A002_UC7 : <<include>>
 
 ' A003
 Scheduler --> A003_UC1
 A003_UC1 .> A003_UC2 : <<include>>
 A003_UC2 .> A003_UC3 : <<include>>
-A003_UC3 .> A003_UC5 : <<include>>
+A003_UC3 .> A003_UC6 : <<include>>
 A003_UC3 .> A003_UC4 : <<extend>>
-A003_UC2 .> A003_UC4 : <<extend>>
+A003_UC2 .> A003_UC5 : <<extend>>
 
 ' A004
 Admin --> A004_UC1
@@ -122,12 +140,6 @@ Admin --> A006_UC1
 Admin --> A006_UC2
 A006_UC2 .> A006_UC3 : <<include>>
 
-rectangle "A008 月結報表收件信箱設定" {
-    usecase "查詢報表收件信箱清單" as A008_UC1
-    usecase "新增報表收件信箱" as A008_UC2
-    usecase "刪除報表收件信箱" as A008_UC3
-}
-
 ' A007
 Admin --> A007_UC1
 Admin --> A007_UC2
@@ -139,5 +151,20 @@ A007_UC4 .> A007_UC5 : <<include>>
 Admin --> A008_UC1
 Admin --> A008_UC2
 Admin --> A008_UC3
+
+' A009
+Employee --> A009_UC1
+Employee --> A009_UC2
+Employee --> A009_UC7
+Employee --> A009_UC8
+Employee --> A009_UC9
+Admin --> A009_UC3
+Admin --> A009_UC4
+Admin --> A009_UC5
+Admin --> A009_UC6
+Admin --> A009_UC7
+Admin --> A009_UC8
+Admin --> A009_UC9
+Admin --> A009_UC10
 
 @enduml

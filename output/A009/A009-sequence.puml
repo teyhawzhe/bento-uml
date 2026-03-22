@@ -1,0 +1,79 @@
+@startuml A009-sequence
+
+actor 使用者
+participant "前端介面" as Frontend
+participant "TAB 元件" as Tab
+participant "MessageBox 元件" as MsgBox
+participant "後端 API" as Backend
+
+== 登入後依角色直接導向 TAB 主頁 ==
+
+使用者 -> Frontend : 登入成功（取得 JWT）
+Frontend -> Frontend : 解析 JWT 取得角色資訊
+note right of Frontend
+  不顯示「員工入口」
+  與「管理員入口」選擇頁
+end note
+
+alt 角色為員工
+    Frontend -> Tab : 初始化員工 TAB 頁籤\n（訂便當、我的訂單）
+    Tab --> Frontend : 預設顯示「訂便當」頁籤
+else 角色為管理員
+    Frontend -> Tab : 初始化管理員 TAB 頁籤\n（訂單管理、供應商管理、報表設定、系統設定）
+    Tab --> Frontend : 預設顯示「訂單管理」頁籤
+end
+
+Frontend --> 使用者 : 直接顯示對應角色的 TAB 主頁
+
+== 切換 TAB ==
+
+使用者 -> Tab : 點擊 TAB 頁籤
+Tab -> Frontend : 切換至對應功能頁面
+Frontend --> 使用者 : 顯示功能頁面內容（不重整整頁）
+
+== 執行一般操作（新增 / 修改 / 查詢） ==
+
+使用者 -> Frontend : 填寫表單並送出
+Frontend -> Frontend : 前端驗證表單欄位
+alt 驗證失敗
+    Frontend -> MsgBox : 顯示警告 MessageBox（欄位錯誤原因）
+    MsgBox --> 使用者 : 顯示警告訊息
+    使用者 -> MsgBox : 點擊確認
+    MsgBox --> Frontend : 關閉 MessageBox
+else 驗證通過
+    Frontend -> Backend : 送出 API 請求
+    alt 操作成功
+        Backend --> Frontend : 200 OK
+        Frontend -> MsgBox : 顯示成功 MessageBox
+        MsgBox --> 使用者 : 顯示成功訊息
+        使用者 -> MsgBox : 點擊確認
+        MsgBox --> Frontend : 關閉 MessageBox
+    else 操作失敗
+        Backend --> Frontend : 4xx / 5xx 錯誤
+        Frontend -> MsgBox : 顯示錯誤 MessageBox（錯誤原因）
+        MsgBox --> 使用者 : 顯示錯誤訊息
+        使用者 -> MsgBox : 點擊確認
+        MsgBox --> Frontend : 關閉 MessageBox
+    end
+end
+
+== 刪除操作 ==
+
+使用者 -> Frontend : 點擊刪除按鈕
+Frontend -> MsgBox : 顯示確認 MessageBox（含確認 / 取消）
+MsgBox --> 使用者 : 顯示確認訊息
+alt 使用者點擊確認
+    使用者 -> MsgBox : 點擊確認
+    MsgBox --> Frontend : 使用者確認刪除
+    Frontend -> Backend : 送出刪除 API 請求
+    Backend --> Frontend : 200 OK
+    Frontend -> MsgBox : 顯示成功 MessageBox
+    MsgBox --> 使用者 : 顯示刪除成功訊息
+    使用者 -> MsgBox : 點擊確認
+    MsgBox --> Frontend : 關閉 MessageBox
+else 使用者點擊取消
+    使用者 -> MsgBox : 點擊取消
+    MsgBox --> Frontend : 使用者取消刪除
+end
+
+@enduml
