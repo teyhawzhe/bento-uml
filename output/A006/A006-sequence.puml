@@ -17,8 +17,8 @@ Frontend --> Admin : 顯示訂餐記錄
 == 代替員工新增訂餐 ==
 Admin -> Frontend : 選擇員工與隔日便當
 Frontend -> API : POST /api/admin/orders
-API -> API : 檢查是否在批次排程前（A003 每日 17:00）
-alt 已超過截止時間
+API -> API : 檢查是否在訂餐日前一日 16:30 前\n（批次排程執行前 30 分鐘）
+alt 已超過截止時間（16:30 後）
     API --> Frontend : 403 已超過截止時間
     Frontend --> Admin : 顯示截止提示
 else 未超過截止時間
