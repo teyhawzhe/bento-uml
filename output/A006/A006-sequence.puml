@@ -7,12 +7,20 @@ participant "後端 API" as API
 database "資料庫" as DB
 
 == 查詢所有員工訂餐記錄 ==
-Admin -> Frontend : 進入訂單總覽，輸入篩選條件
-Frontend -> API : GET /api/admin/orders?date=&employee_id=
-API -> DB : SELECT orders JOIN employees JOIN menus（依篩選條件）
+Admin -> Frontend : 進入訂單總覽頁面
+Frontend -> Frontend : 預設帶入 date_from=今天、date_to=今天
+Frontend -> API : GET /api/admin/orders?date_from=今天&date_to=今天&employee_id=
+API -> DB : SELECT orders JOIN employees JOIN menus\nWHERE order_date BETWEEN date_from AND date_to
 DB --> API : 回傳訂餐記錄清單（含員工姓名、便當名稱）
 API --> Frontend : 200 回傳清單
-Frontend --> Admin : 顯示訂餐記錄
+Frontend --> Admin : 顯示今日訂餐記錄
+
+Admin -> Frontend : 調整日期區間或員工篩選條件後重新查詢
+Frontend -> API : GET /api/admin/orders?date_from=&date_to=&employee_id=
+API -> DB : SELECT orders JOIN employees JOIN menus\nWHERE order_date BETWEEN date_from AND date_to
+DB --> API : 回傳訂餐記錄清單
+API --> Frontend : 200 回傳清單
+Frontend --> Admin : 顯示查詢結果
 
 == 代替員工新增訂餐 ==
 Admin -> Frontend : 選擇員工與隔日便當
