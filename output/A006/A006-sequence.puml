@@ -6,6 +6,14 @@ participant "前端" as Frontend
 participant "後端 API" as API
 database "資料庫" as DB
 
+== 查詢供應商與便當選項 ==
+Admin -> Frontend : 進入供應商便當查詢頁面
+Frontend -> API : GET /api/admin/suppliers（JWT Token）
+API -> DB : SELECT suppliers LEFT JOIN menus ON menus.supplier_id = suppliers.id
+DB --> API : 回傳供應商清單及各供應商便當選項
+API --> Frontend : 200 回傳資料
+Frontend --> Admin : 顯示供應商與便當選項清單
+
 == 查詢所有員工訂餐記錄 ==
 Admin -> Frontend : 進入訂單總覽頁面
 Frontend -> Frontend : 預設帶入 date_from=今天、date_to=今天

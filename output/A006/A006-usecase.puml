@@ -9,11 +9,13 @@ rectangle "管理員代替員工新增訂餐與查詢訂單" {
     usecase "代替員工新增訂餐" as UC2
     usecase "代替員工取消訂餐" as UC4
     usecase "檢查截止時間（訂餐日前一日 16:30）" as UC3
+    usecase "查詢供應商與便當選項" as UC5
 }
 
 Admin --> UC1
 Admin --> UC2
 Admin --> UC4
+Admin --> UC5
 UC2 ..> UC3 : <<include>>
 UC4 ..> UC3 : <<include>>
 @enduml
