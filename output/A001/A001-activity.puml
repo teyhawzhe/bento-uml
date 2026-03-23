@@ -80,7 +80,7 @@ stop
 
 |新增單一員工帳號流程|
 start
-:管理員輸入員工資料\n（username、name、email）;
+:管理員輸入員工資料\n（username、name、email、department_id）;
 :系統驗證 username 與 email 是否已存在;
 if (已存在?) then (是)
   :顯示錯誤訊息;
@@ -93,15 +93,21 @@ stop
 
 |CSV 批次匯入員工帳號流程|
 start
-:管理員上傳 CSV 檔案\n（欄位：username、name、email）;
-:系統逐列驗證欄位是否完整;
+:系統顯示支援的 CSV 格式說明\n（欄位：username、name、email、department_id）;
+:管理員上傳 CSV 檔案;
+:系統檢查 CSV 欄位是否符合格式;
+if (欄位正確?) then (否)
+  :顯示錯誤提示，不允許匯入;
+  stop
+endif
+:系統逐列驗證資料是否完整;
 fork
-  :驗證失敗的列\n記錄錯誤原因，跳過不匯入;
+  :驗證失敗的列\n記錄行數與錯誤原因，跳過不匯入;
 fork again
   :驗證通過的列\n建立帳號，產生隨機初始密碼;
   :寄送初始密碼至員工 Email;
 end fork
-:回傳匯入結果\n（成功筆數、失敗筆數與錯誤明細）;
+:回傳匯入結果\n（成功筆數、失敗筆數與錯誤明細，\n錯誤明細含行數與錯誤原因）;
 stop
 
 |停用／啟用員工帳號流程|

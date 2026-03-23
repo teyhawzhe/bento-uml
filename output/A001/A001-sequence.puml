@@ -122,7 +122,7 @@ BE --> FE : 200 回傳員工清單
 FE --> 管理員 : 顯示員工清單
 
 == 新增單一員工帳號 ==
-管理員 -> FE : 輸入員工資料（username、name、email）
+管理員 -> FE : 輸入員工資料（username、name、email、department_id）
 FE -> BE : POST /api/admin/employees（JWT Token）
 BE -> DB : 驗證 username 與 email 是否已存在
 alt 已存在
@@ -140,22 +140,30 @@ else 不存在
 end
 
 == CSV 批次匯入員工帳號 ==
+管理員 -> FE : 進入 CSV 匯入頁面
+FE --> 管理員 : 顯示支援格式說明（欄位：username、name、email、department_id）
 管理員 -> FE : 上傳 CSV 檔案
 FE -> BE : POST /api/admin/employees/import（JWT Token、CSV）
-BE -> BE : 逐列驗證欄位完整性
-loop 每一列資料
-  alt 驗證失敗
-    BE -> BE : 記錄錯誤原因，跳過此列
-  else 驗證通過
-    BE -> BE : 產生隨機初始密碼
-    BE -> DB : INSERT employees
-    DB --> BE : 新增成功
-    BE -> MAIL : 寄送初始密碼至員工 Email
-    MAIL --> BE : 寄送成功
+BE -> BE : 檢查 CSV 欄位是否符合格式
+alt 欄位不正確
+  BE --> FE : 400 Bad Request（欄位格式錯誤）
+  FE --> 管理員 : 顯示錯誤提示
+else 欄位正確
+  BE -> BE : 逐列驗證資料完整性
+  loop 每一列資料
+    alt 驗證失敗
+      BE -> BE : 記錄行數與錯誤原因，跳過此列
+    else 驗證通過
+      BE -> BE : 產生隨機初始密碼
+      BE -> DB : INSERT employees
+      DB --> BE : 新增成功
+      BE -> MAIL : 寄送初始密碼至員工 Email
+      MAIL --> BE : 寄送成功
+    end
   end
+  BE --> FE : 200 回傳匯入結果（成功筆數、失敗筆數與錯誤明細，錯誤明細含行數與錯誤原因）
+  FE --> 管理員 : 顯示匯入結果
 end
-BE --> FE : 200 回傳匯入結果（成功筆數、失敗筆數與錯誤明細）
-FE --> 管理員 : 顯示匯入結果
 
 == 停用／啟用員工帳號 ==
 管理員 -> FE : 選擇員工並執行停用或啟用

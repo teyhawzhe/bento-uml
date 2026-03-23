@@ -1,0 +1,27 @@
+@startuml A010-activity
+
+title A010 部門管理與部門管理者權限 - 活動圖
+
+start
+
+fork
+  :查詢部門清單;
+  :系統回傳所有部門清單;
+fork again
+  :新增部門;
+  :輸入部門名稱;
+  if (名稱是否重複?) then (是)
+    :顯示錯誤提示;
+    stop
+  else (否)
+    :儲存新部門;
+  endif
+fork again
+  :修改部門名稱;
+  :選擇部門並修改名稱;
+  :系統儲存變更;
+end fork
+
+stop
+
+@enduml

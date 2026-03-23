@@ -1,0 +1,17 @@
+@startuml A010-usecase
+
+title A010 部門管理與部門管理者權限 - Use Case 圖
+
+actor "系統管理員" as admin
+
+rectangle "A010 部門管理與部門管理者權限" {
+  usecase "查詢部門清單" as UC1
+  usecase "新增部門" as UC2
+  usecase "修改部門名稱" as UC3
+}
+
+admin --> UC1
+admin --> UC2
+admin --> UC3
+
+@enduml

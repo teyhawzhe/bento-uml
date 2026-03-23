@@ -1,0 +1,41 @@
+@startuml A010-sequence
+
+title A010 部門管理與部門管理者權限 - 序列圖
+
+actor "系統管理員" as admin
+participant "前端" as fe
+participant "後端 API" as api
+database "資料庫" as db
+
+== 查詢部門清單 ==
+admin -> fe : 進入部門管理頁面
+fe -> api : GET /api/admin/departments
+api -> db : SELECT * FROM department
+db --> api : 部門清單
+api --> fe : 200 OK（部門清單）
+fe --> admin : 顯示部門清單
+
+== 新增部門 ==
+admin -> fe : 輸入部門名稱並送出
+fe -> api : POST /api/admin/departments
+api -> db : 查詢是否有相同名稱的部門
+db --> api : 查詢結果
+alt 名稱重複
+  api --> fe : 400 Bad Request（名稱已存在）
+  fe --> admin : 顯示錯誤提示
+else 名稱不重複
+  api -> db : INSERT INTO department
+  db --> api : 成功
+  api --> fe : 201 Created
+  fe --> admin : 顯示新增成功
+end
+
+== 修改部門名稱 ==
+admin -> fe : 選擇部門並修改名稱
+fe -> api : PATCH /api/admin/departments/{id}
+api -> db : UPDATE department SET name = ...
+db --> api : 成功
+api --> fe : 200 OK
+fe --> admin : 顯示修改成功
+
+@enduml
