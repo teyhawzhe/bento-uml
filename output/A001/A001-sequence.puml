@@ -165,6 +165,21 @@ else 欄位正確
   FE --> 管理員 : 顯示匯入結果
 end
 
+== 修改員工資料 ==
+管理員 -> FE : 選擇員工並修改資料
+FE -> BE : PATCH /api/admin/employees/{id}（JWT Token、username、name、email、department_id、is_admin）
+BE -> DB : 驗證 username 與 email 是否與其他員工重複
+DB --> BE : 查詢結果
+alt 重複
+  BE --> FE : 409 帳號或 Email 已存在
+  FE --> 管理員 : 顯示錯誤訊息
+else 不重複
+  BE -> DB : UPDATE employees SET ...
+  DB --> BE : 更新成功
+  BE --> FE : 200 修改成功
+  FE --> 管理員 : 顯示修改成功
+end
+
 == 停用／啟用員工帳號 ==
 管理員 -> FE : 選擇員工並執行停用或啟用
 FE -> BE : PATCH /api/admin/employees/{id}/status（JWT Token、is_active）

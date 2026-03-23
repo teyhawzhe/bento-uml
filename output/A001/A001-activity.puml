@@ -110,6 +110,19 @@ end fork
 :回傳匯入結果\n（成功筆數、失敗筆數與錯誤明細，\n錯誤明細含行數與錯誤原因）;
 stop
 
+|修改員工資料流程|
+start
+:管理員從員工清單選擇目標員工;
+:系統顯示員工資料（id 不可編輯）;
+:管理員修改欄位\n（username、name、email、department_id、is_admin）;
+:系統驗證 username 與 email 是否與其他員工重複;
+if (重複?) then (是)
+  :顯示錯誤訊息;
+  stop
+endif
+:更新資料庫並顯示修改成功;
+stop
+
 |停用／啟用員工帳號流程|
 start
 :管理員從員工清單選擇目標員工;

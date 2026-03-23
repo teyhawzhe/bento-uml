@@ -16,6 +16,7 @@ rectangle 訂便當系統 {
   usecase "查詢員工清單" as UC11
   usecase "新增單一員工帳號" as UC7
   usecase "CSV 批次匯入員工帳號" as UC10
+  usecase "修改員工資料" as UC13
   usecase "停用員工帳號" as UC8
   usecase "啟用員工帳號" as UC12
   usecase "重設員工密碼（Email 通知）" as UC9
@@ -31,6 +32,7 @@ rectangle 訂便當系統 {
 系統管理員 --> UC11
 系統管理員 --> UC7
 系統管理員 --> UC10
+系統管理員 --> UC13
 系統管理員 --> UC8
 系統管理員 --> UC12
 系統管理員 --> UC9
