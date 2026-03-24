@@ -57,10 +57,18 @@ PlantUML
 - 每次新增或修改需求後，執行 `/sync-usecase` 重新產出此檔案
 - 相同 actor 不重複宣告，每個需求以獨立 `rectangle` 區塊呈現
 
+## 根目錄 OpenAPI 規格
+- 根目錄維護一份 `openapi.yaml`，統整所有需求的 API 定義
+- 格式遵循 OpenAPI 3.0.0 規範
+- 每次新增或修改需求後，執行 `/sync-openapi` 重新產出此檔案
+- 無 API 路徑的需求（如 A003、A009）跳過不產出
+
 ## 執行方式
 當我說「處理 A001」時，你需要：
 1. 讀取 input/A001.md
 2. 建立 output/A001/ 資料夾
 3. 依序產出 4 個 .puml 檔案到 output/A001/
 4. 更新 index.md 加入該需求的編號與標題（若尚未存在）
-5. 完成後列出產出的檔案清單確認
+5. 同步更新根目錄的 `usecase.puml`（執行 `/sync-usecase` 邏輯）
+6. 同步更新根目錄的 `openapi.yaml`（執行 `/sync-openapi` 邏輯）
+7. 完成後列出產出的檔案清單確認

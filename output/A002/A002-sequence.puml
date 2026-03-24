@@ -98,6 +98,23 @@ else 未超過截止時間
   FE --> 員工 : 顯示取消成功
 end
 
+== 員工查看個人訂餐記錄 ==
+員工 -> FE : 進入個人訂餐記錄頁面
+FE -> BE : GET /api/orders/me（JWT Token）
+BE -> DB : 查詢該員工所有訂餐記錄
+DB --> BE : 回傳訂餐記錄清單
+BE --> FE : 200 回傳訂餐記錄清單
+FE --> 員工 : 顯示個人訂餐記錄
+
+== 管理員新增供應商 ==
+系統管理員 -> FE : 輸入供應商資料（名稱、Email、電話、負責人、營業登記編號）
+FE -> BE : POST /api/suppliers（JWT Token）
+BE -> BE : 驗證管理員身份
+BE -> DB : INSERT suppliers
+DB --> BE : 新增成功
+BE --> FE : 201 新增成功
+FE --> 系統管理員 : 顯示新增成功
+
 == 管理員取消員工訂餐 ==
 系統管理員 -> FE : 選擇取消指定員工訂餐
 FE -> BE : DELETE /api/admin/orders/{id}（JWT Token）

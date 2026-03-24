@@ -55,7 +55,16 @@ components:
     LoginData:
       type: object
       properties:
-        token:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+
+    RefreshTokenRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
           type: string
 
     ForgotPasswordRequest:
@@ -111,6 +120,23 @@ components:
         email:
           type: string
           format: email
+        department_id:
+          type: integer
+
+    UpdateEmployeeRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        department_id:
+          type: integer
+        is_admin:
+          type: boolean
 
     EmployeeStatusRequest:
       type: object
@@ -367,6 +393,23 @@ components:
           type: string
           format: date-time
 
+    # ==================== A006 Schemas ====================
+
+    SupplierWithMenus:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        menus:
+          type: array
+          items:
+            $ref: '#/components/schemas/Menu'
+
     # ==================== A007 Schemas ====================
 
     UpdateSupplierRequest:
@@ -383,6 +426,33 @@ components:
           type: string
         is_active:
           type: boolean
+
+    # ==================== A010 Schemas ====================
+
+    Department:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CreateDepartmentRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+
+    UpdateDepartmentRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
 
     # ==================== A008 Schemas ====================
 
@@ -484,6 +554,32 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /api/auth/refresh:
+    post:
+      tags: [A001 員工登入]
+      summary: 員工用 Refresh Token 換新 Access Token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: 換發成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/LoginData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
   /api/auth/logout:
     post:
       tags: [A001 員工登入]
@@ -555,6 +651,32 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /api/admin/auth/refresh:
+    post:
+      tags: [A001 管理員帳號]
+      summary: 管理員用 Refresh Token 換新 Access Token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: 換發成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/LoginData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
   /api/admin/employees:
     get:
       tags: [A001 管理員帳號]
@@ -587,6 +709,39 @@ paths:
           $ref: '#/components/responses/SuccessNoData'
         '409':
           $ref: '#/components/responses/Conflict'
+
+  /api/admin/employees/{id}:
+    patch:
+      tags: [A001 管理員帳號]
+      summary: 修改員工資料（username、name、email、department_id、is_admin）
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmployeeRequest'
+      responses:
+        '200':
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Employee'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /api/admin/employees/import:
     post:
@@ -888,16 +1043,42 @@ paths:
                       data:
                         $ref: '#/components/schemas/Supplier'
 
+  /api/admin/suppliers:
+    get:
+      tags: [A006 管理員訂單]
+      summary: 查詢供應商清單及其便當選項
+      responses:
+        '200':
+          description: 供應商清單（含便當選項）
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SupplierWithMenus'
+
   /api/admin/orders:
     get:
       tags: [A006 管理員訂單]
       summary: 查詢所有員工訂餐記錄（含員工姓名、便當名稱）
       parameters:
-        - name: date
+        - name: date_from
           in: query
           schema:
             type: string
             format: date
+          description: 查詢起始日期（預設今天）
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 查詢結束日期（預設今天）
         - name: employee_id
           in: query
           schema:
@@ -942,7 +1123,7 @@ paths:
 
   /api/admin/orders/{id}:
     delete:
-      tags: [A002 菜單管理]
+      tags: [A006 管理員訂單]
       summary: 管理員取消指定員工訂餐
       parameters:
         - name: id
@@ -1047,7 +1228,7 @@ paths:
 
   # ==================== A007 ====================
 
-  /api/suppliers/query:
+  /api/suppliers:
     get:
       tags: [A007 供應商管理]
       summary: 查詢供應商清單（支援精確與模糊查詢）
@@ -1129,6 +1310,81 @@ paths:
                         $ref: '#/components/schemas/Supplier'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== A010 ====================
+
+  /api/admin/departments:
+    get:
+      tags: [A010 部門管理]
+      summary: 查詢部門清單
+      responses:
+        '200':
+          description: 部門清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Department'
+    post:
+      tags: [A010 部門管理]
+      summary: 新增部門
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDepartmentRequest'
+      responses:
+        '201':
+          description: 新增成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Department'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/admin/departments/{id}:
+    patch:
+      tags: [A010 部門管理]
+      summary: 修改部門名稱
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDepartmentRequest'
+      responses:
+        '200':
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Department'
         '404':
           $ref: '#/components/responses/NotFound'
 

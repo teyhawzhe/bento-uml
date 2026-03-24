@@ -12,6 +12,7 @@ rectangle 訂便當系統 {
   usecase "更新已訂的便當" as UC8
   usecase "取消已訂的便當" as UC3
   usecase "查看個人訂餐記錄" as UC4
+  usecase "新增供應商" as UC11
   usecase "建立菜單" as UC5
   usecase "設定菜單有效期間" as UC6
   usecase "查詢菜單清單（含歷史）" as UC9
@@ -25,6 +26,7 @@ rectangle 訂便當系統 {
 員工 --> UC3
 員工 --> UC4
 
+系統管理員 --> UC11
 系統管理員 --> UC5
 系統管理員 --> UC6
 系統管理員 --> UC9

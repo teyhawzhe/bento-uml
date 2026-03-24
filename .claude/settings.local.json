@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -l \"employee\\\\|員工\\\\|EMPLOYEE\" D:/git/bento-uml/output/*/)"
+      "Bash(grep -l \"employee\\\\|員工\\\\|EMPLOYEE\" D:/git/bento-uml/output/*/)",
+      "Skill(update-config)"
     ]
   }
 }

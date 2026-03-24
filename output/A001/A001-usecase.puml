@@ -20,6 +20,8 @@ rectangle 訂便當系統 {
   usecase "停用員工帳號" as UC8
   usecase "啟用員工帳號" as UC12
   usecase "重設員工密碼（Email 通知）" as UC9
+  usecase "自動刷新 Access Token" as UC14
+  usecase "Token 失效時導回登入頁" as UC15
 }
 
 員工 --> UC1
@@ -27,6 +29,8 @@ rectangle 訂便當系統 {
 員工 --> UC3
 員工 --> UC4
 員工 --> UC5
+員工 --> UC14
+員工 --> UC15
 
 系統管理員 --> UC6
 系統管理員 --> UC11
@@ -36,8 +40,11 @@ rectangle 訂便當系統 {
 系統管理員 --> UC8
 系統管理員 --> UC12
 系統管理員 --> UC9
+系統管理員 --> UC14
+系統管理員 --> UC15
 
 UC1 .> UC2 : <<extend>>
 UC6 .> UC2 : <<extend>>
+UC14 .> UC15 : <<extend>>
 
 @enduml

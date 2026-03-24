@@ -20,7 +20,8 @@ if (帳號啟用中?) then (否)
   :顯示帳號停用訊息;
   stop
 endif
-:產生 role=employee 的 JWT Token;
+:產生 role=employee 的 Access Token 與 Refresh Token;
+:儲存 Refresh Token Hash 至資料庫;
 :導向系統首頁;
 stop
 
@@ -42,8 +43,18 @@ if (帳號啟用中?) then (否)
   :顯示帳號停用訊息;
   stop
 endif
-:產生 role=admin 的 JWT Token;
+:產生 role=admin 的 Access Token 與 Refresh Token;
+:儲存 Refresh Token Hash 至資料庫;
 :導向管理後台首頁;
+stop
+
+|員工登出流程|
+start
+:員工點擊登出;
+:前端呼叫 POST /api/auth/logout\n（附帶 Access Token 與 Refresh Token）;
+:後端將該員工 Refresh Token 標記為作廢;
+:前端清除本地 Access Token 與 Refresh Token;
+:導向登入頁面;
 stop
 
 |忘記密碼流程|
@@ -74,7 +85,8 @@ if (舊密碼正確?) then (否)
 endif
 :更新 password_hash;
 :顯示修改成功;
-:系統自動登出，清除 JWT Token;
+:後端將該員工所有 Refresh Token 標記為作廢;
+:前端清除本地 Access Token 與 Refresh Token;
 :導向登入頁面;
 stop
 
@@ -146,6 +158,33 @@ endif
 :更新員工 password_hash;
 :寄送 Email 通知員工密碼已被重設;
 :顯示重設成功;
+stop
+
+|Token 自動刷新流程|
+start
+:前端發送 API 請求（附帶 Access Token）;
+:後端驗證 Access Token;
+if (Access Token 有效?) then (否)
+  :後端回傳 401;
+  :前端攔截 401;
+  if (本地有 Refresh Token?) then (否)
+    :清除所有 Token;
+    :導回登入頁;
+    stop
+  endif
+  :前端呼叫 Refresh API;
+  :後端驗證 Refresh Token;
+  if (Refresh Token 有效?) then (否)
+    :後端回傳 401;
+    :前端清除所有 Token;
+    :導回登入頁;
+    stop
+  endif
+  :後端核發新 Access Token 與新 Refresh Token\n（舊 Refresh Token 作廢）;
+  :前端儲存新 Token;
+  :前端以新 Access Token 重試原請求;
+endif
+:請求成功，使用者無感繼續操作;
 stop
 
 @enduml

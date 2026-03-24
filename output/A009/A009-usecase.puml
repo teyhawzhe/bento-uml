@@ -36,6 +36,7 @@ rectangle "A009 前端介面 TAB 分頁與訊息提示" {
 員工 --> UC_MSG1
 員工 --> UC_MSG2
 員工 --> UC_MSG3
+員工 --> UC_MSG4
 
 管理員 --> UC_ROUTE2
 管理員 --> UC_ADM_TAB1

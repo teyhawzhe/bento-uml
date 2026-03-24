@@ -23,6 +23,17 @@ entity "department\n部門資料表" as department {
   created_at : DATETIME（建立時間）
 }
 
+entity "refresh_tokens\nRefresh Token 資料表" as refresh_tokens {
+  * id : INT <<PK>>
+  --
+  employee_id : INT <<FK>>（所屬員工）
+  token_hash : VARCHAR（Token 雜湊值）
+  expires_at : DATETIME（過期時間）
+  is_revoked : BOOLEAN（是否已作廢）
+  created_at : DATETIME（建立時間）
+}
+
 employees }o--|| department : "department_id"
+employees ||--o{ refresh_tokens : "employee_id"
 
 @enduml

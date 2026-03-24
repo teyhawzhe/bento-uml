@@ -51,6 +51,18 @@ fork again
   stop
 
 fork again
+  :員工進入個人訂餐記錄頁面;
+  :系統呼叫 GET /api/orders/me;
+  :顯示個人訂餐記錄清單;
+  stop
+
+fork again
+  :管理員輸入供應商資料\n（名稱、Email、電話、負責人、營業登記編號）;
+  :系統儲存供應商資料;
+  :顯示新增成功;
+  stop
+
+fork again
   :管理員進入菜單管理頁面;
   fork
     :查詢菜單清單\n（帶 include_history 可含歷史菜單）;

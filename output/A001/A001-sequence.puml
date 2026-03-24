@@ -29,18 +29,23 @@ else 帳號存在
       BE --> FE : 回傳帳號停用訊息
       FE --> 員工 : 顯示帳號停用訊息
     else 帳號正常
-      BE -> BE : 產生 role=employee 的 JWT Token
-      BE --> FE : 回傳 JWT Token
-      FE -> FE : 儲存 JWT Token
+      BE -> BE : 產生 role=employee 的 Access Token 與 Refresh Token
+      BE -> DB : 儲存 Refresh Token Hash（refresh_tokens）
+      DB --> BE : 儲存成功
+      BE --> FE : 回傳 Access Token 與 Refresh Token
+      FE -> FE : 儲存 Access Token 與 Refresh Token
       FE --> 員工 : 導向系統首頁
     end
   end
 end
 
+== 員工登出流程 ==
 員工 -> FE : 點擊登出
-FE -> BE : POST /api/auth/logout（JWT Token）
-BE --> FE : 確認登出成功
-FE -> FE : 清除 JWT Token
+FE -> BE : POST /api/auth/logout（Access Token、Refresh Token）
+BE -> DB : 將該員工 Refresh Token 標記為作廢（is_revoked = true）
+DB --> BE : 更新成功
+BE --> FE : 200 確認登出成功
+FE -> FE : 清除本地 Access Token 與 Refresh Token
 FE --> 員工 : 導向登入頁面
 
 == 管理員登入流程（/admin/login） ==
@@ -63,9 +68,11 @@ else 帳號存在
       BE --> FE : 回傳帳號停用訊息
       FE --> 管理員 : 顯示帳號停用訊息
     else 帳號正常
-      BE -> BE : 產生 role=admin 的 JWT Token
-      BE --> FE : 回傳 JWT Token
-      FE -> FE : 儲存 JWT Token
+      BE -> BE : 產生 role=admin 的 Access Token 與 Refresh Token
+      BE -> DB : 儲存 Refresh Token Hash（refresh_tokens）
+      DB --> BE : 儲存成功
+      BE --> FE : 回傳 Access Token 與 Refresh Token
+      FE -> FE : 儲存 Access Token 與 Refresh Token
       FE --> 管理員 : 導向管理後台首頁
     end
   end
@@ -107,8 +114,10 @@ else 格式正確
   else 舊密碼正確
     BE -> DB : 更新 password_hash
     DB --> BE : 更新成功
+    BE -> DB : 將該員工所有 Refresh Token 標記為作廢（is_revoked = true）
+    DB --> BE : 更新成功
     BE --> FE : 200 修改成功
-    FE -> FE : 清除 JWT Token
+    FE -> FE : 清除本地 Access Token 與 Refresh Token
     FE --> 員工 : 顯示修改成功並導向登入頁面
   end
 end
@@ -211,6 +220,66 @@ else 格式正確
   MAIL --> BE : 寄送成功
   BE --> FE : 200 重設成功
   FE --> 管理員 : 顯示重設成功
+end
+
+== Token 自動刷新流程（員工） ==
+員工 -> FE : 操作系統（發送 API 請求）
+FE -> BE : API 請求（附帶 Access Token）
+BE --> FE : 401 Token 過期或無效
+FE -> FE : 攔截 401，確認本地有 Refresh Token
+alt 無 Refresh Token
+  FE -> FE : 清除所有 Token
+  FE --> 員工 : 導回登入頁
+else 有 Refresh Token
+  FE -> BE : POST /api/auth/refresh（Refresh Token）
+  BE -> DB : 查詢 Refresh Token 是否有效
+  alt Refresh Token 無效或已過期
+    DB --> BE : 查無有效 Token 或已作廢
+    BE --> FE : 401 Refresh Token 無效
+    FE -> FE : 清除所有 Token
+    FE --> 員工 : 導回登入頁
+  else Refresh Token 有效
+    DB --> BE : 回傳 Token 資料
+    BE -> DB : 將舊 Refresh Token 標記為作廢（is_revoked = true）
+    BE -> BE : 核發新 Access Token 與新 Refresh Token
+    BE -> DB : 儲存新 Refresh Token Hash（refresh_tokens）
+    DB --> BE : 儲存成功
+    BE --> FE : 200 回傳新 Access Token 與新 Refresh Token
+    FE -> FE : 更新本地 Token
+    FE -> BE : 以新 Access Token 重試原請求
+    BE --> FE : 原請求回應成功
+    FE --> 員工 : 使用者無感繼續操作
+  end
+end
+
+== Token 自動刷新流程（管理員） ==
+管理員 -> FE : 操作後台（發送 API 請求）
+FE -> BE : API 請求（附帶 Access Token）
+BE --> FE : 401 Token 過期或無效
+FE -> FE : 攔截 401，確認本地有 Refresh Token
+alt 無 Refresh Token
+  FE -> FE : 清除所有 Token
+  FE --> 管理員 : 導回管理員登入頁
+else 有 Refresh Token
+  FE -> BE : POST /api/admin/auth/refresh（Refresh Token）
+  BE -> DB : 查詢 Refresh Token 是否有效
+  alt Refresh Token 無效或已過期
+    DB --> BE : 查無有效 Token 或已作廢
+    BE --> FE : 401 Refresh Token 無效
+    FE -> FE : 清除所有 Token
+    FE --> 管理員 : 導回管理員登入頁
+  else Refresh Token 有效
+    DB --> BE : 回傳 Token 資料
+    BE -> DB : 將舊 Refresh Token 標記為作廢（is_revoked = true）
+    BE -> BE : 核發新 Access Token 與新 Refresh Token
+    BE -> DB : 儲存新 Refresh Token Hash（refresh_tokens）
+    DB --> BE : 儲存成功
+    BE --> FE : 200 回傳新 Access Token 與新 Refresh Token
+    FE -> FE : 更新本地 Token
+    FE -> BE : 以新 Access Token 重試原請求
+    BE --> FE : 原請求回應成功
+    FE --> 管理員 : 使用者無感繼續操作
+  end
 end
 
 @enduml
