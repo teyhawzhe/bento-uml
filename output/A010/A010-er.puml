@@ -5,22 +5,22 @@ title A010 部門管理與部門管理者權限 - ER 圖
 entity "employees\n員工資料表" as employees {
   * id : INT <<PK>>
   --
-  username : VARCHAR（帳號）
-  password_hash : VARCHAR（密碼雜湊）
-  name : VARCHAR（姓名）
-  email : VARCHAR（Email）
-  is_admin : BOOLEAN（是否為管理員）
-  is_active : BOOLEAN（是否啟用）
-  department_id : INT <<FK>>（所屬部門）
-  created_at : DATETIME
-  updated_at : DATETIME
+  * username : VARCHAR（帳號）
+  * password_hash : VARCHAR（密碼雜湊）
+  * name : VARCHAR（姓名）
+  * email : VARCHAR（Email）
+  * is_admin : BOOLEAN（是否為管理員）
+  * is_active : BOOLEAN（是否啟用）
+  department_id : INT <<FK>>（所屬部門，可為 NULL）
+  * created_at : DATETIME
+  * updated_at : DATETIME
 }
 
 entity "department\n部門資料表" as department {
   * id : INT <<PK>>
   --
-  name : VARCHAR（部門名稱）
-  created_at : DATETIME
+  * name : VARCHAR（部門名稱）
+  * created_at : DATETIME
 }
 
 employees }o--|| department : "department_id"

@@ -5,16 +5,16 @@ title A004 系統錯誤通知信箱設定 - ER 圖
 entity "employees\n員工資料表" as employees {
   * id : INT <<PK>>
   --
-  name : VARCHAR（姓名）
-  is_admin : BOOLEAN（是否為管理員）
+  * name : VARCHAR（姓名）
+  * is_admin : BOOLEAN（是否為管理員）
 }
 
 entity "error_notification_emails\n錯誤通知信箱資料表" as error_notification_emails {
   * id : INT <<PK>>
   --
-  email : VARCHAR（通知信箱）
-  created_by : INT <<FK>>
-  created_at : DATETIME（建立時間）
+  * email : VARCHAR（通知信箱）
+  * created_by : INT <<FK>>
+  * created_at : DATETIME（建立時間）
 }
 
 employees ||--o{ error_notification_emails : "建立"

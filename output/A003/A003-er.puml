@@ -5,41 +5,41 @@ title A003 每日供應商訂單通知 - ER 圖
 entity "suppliers\n供應商資料表" as suppliers {
   * id : INT <<PK>>
   --
-  name : VARCHAR（供應商名稱）
-  email : VARCHAR（通知信箱）
-  phone : VARCHAR（聯繫電話）
-  contact_person : VARCHAR（負責人）
-  business_registration_no : VARCHAR（營業登記編號）
-  is_active : BOOLEAN（是否啟用）
-  created_at : DATETIME（建立時間）
+  * name : VARCHAR（供應商名稱）
+  * email : VARCHAR（通知信箱）
+  * phone : VARCHAR（聯繫電話）
+  * contact_person : VARCHAR（負責人）
+  * business_registration_no : VARCHAR（營業登記編號）
+  * is_active : BOOLEAN（是否啟用）
+  * created_at : DATETIME（建立時間）
 }
 
 entity "menus\n菜單資料表" as menus {
   * id : INT <<PK>>
   --
-  supplier_id : INT <<FK>>
-  name : VARCHAR（便當名稱）
-  category : ENUM（類型：肉類/海鮮/素食）
-  valid_from : DATE（有效起始日）
-  valid_to : DATE（有效結束日）
+  * supplier_id : INT <<FK>>
+  * name : VARCHAR（便當名稱）
+  * category : ENUM（類型：肉類/海鮮/素食）
+  * valid_from : DATE（有效起始日）
+  * valid_to : DATE（有效結束日）
 }
 
 entity "orders\n訂餐記錄資料表" as orders {
   * id : INT <<PK>>
   --
-  menu_id : INT <<FK>>
-  order_date : DATE（訂餐日期）
+  * menu_id : INT <<FK>>
+  * order_date : DATE（訂餐日期）
 }
 
 entity "notification_logs\n通知記錄資料表" as notification_logs {
   * id : INT <<PK>>
   --
-  notify_date : DATE（通知日期）
-  email_to : VARCHAR（收件人）
-  content : TEXT（通知內容）
-  status : ENUM（成功 / 失敗 / 異常 / 系統錯誤）
-  error_message : TEXT（錯誤訊息）
-  created_at : DATETIME（建立時間）
+  * notify_date : DATE（通知日期）
+  * email_to : VARCHAR（收件人）
+  * content : TEXT（通知內容）
+  * status : ENUM（成功 / 失敗 / 異常 / 系統錯誤）
+  error_message : TEXT（錯誤訊息，可為 NULL）
+  * created_at : DATETIME（建立時間）
 }
 
 suppliers ||--o{ menus : "提供"

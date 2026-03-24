@@ -5,32 +5,32 @@ title A001 內部員工登入驗證 - ER 圖
 entity "employees\n員工資料表" as employees {
   * id : INT <<PK>>
   --
-  username : VARCHAR（帳號）
-  password_hash : VARCHAR（密碼雜湊）
-  name : VARCHAR（姓名）
-  email : VARCHAR（Email，用於忘記密碼寄信）
-  is_admin : BOOLEAN（是否為管理員）
-  is_active : BOOLEAN（是否啟用）
-  department_id : INT <<FK>>（所屬部門）
-  created_at : DATETIME（建立時間）
-  updated_at : DATETIME（更新時間）
+  * username : VARCHAR（帳號）
+  * password_hash : VARCHAR（密碼雜湊）
+  * name : VARCHAR（姓名）
+  * email : VARCHAR（Email，用於忘記密碼寄信）
+  * is_admin : BOOLEAN（是否為管理員）
+  * is_active : BOOLEAN（是否啟用）
+  department_id : INT <<FK>>（所屬部門，可為 NULL）
+  * created_at : DATETIME（建立時間）
+  * updated_at : DATETIME（更新時間）
 }
 
 entity "department\n部門資料表" as department {
   * id : INT <<PK>>
   --
-  name : VARCHAR（部門名稱）
-  created_at : DATETIME（建立時間）
+  * name : VARCHAR（部門名稱）
+  * created_at : DATETIME（建立時間）
 }
 
 entity "refresh_tokens\nRefresh Token 資料表" as refresh_tokens {
   * id : INT <<PK>>
   --
-  employee_id : INT <<FK>>（所屬員工）
-  token_hash : VARCHAR（Token 雜湊值）
-  expires_at : DATETIME（過期時間）
-  is_revoked : BOOLEAN（是否已作廢）
-  created_at : DATETIME（建立時間）
+  * employee_id : INT <<FK>>（所屬員工）
+  * token_hash : VARCHAR（Token 雜湊值）
+  * expires_at : DATETIME（過期時間）
+  * is_revoked : BOOLEAN（是否已作廢）
+  * created_at : DATETIME（建立時間）
 }
 
 employees }o--|| department : "department_id"

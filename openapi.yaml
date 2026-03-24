@@ -54,6 +54,7 @@ components:
 
     LoginData:
       type: object
+      required: [access_token, refresh_token]
       properties:
         access_token:
           type: string
@@ -88,6 +89,7 @@ components:
 
     Employee:
       type: object
+      required: [id, username, name, email, is_admin, is_active, created_at, updated_at]
       properties:
         id:
           type: integer
@@ -156,6 +158,7 @@ components:
 
     ImportResult:
       type: object
+      required: [success_count, failure_count, errors]
       properties:
         success_count:
           type: integer
@@ -175,6 +178,7 @@ components:
 
     Supplier:
       type: object
+      required: [id, name, email, phone, contact_person, business_registration_no, is_active, created_at]
       properties:
         id:
           type: integer
@@ -213,6 +217,7 @@ components:
 
     Menu:
       type: object
+      required: [id, supplier_id, name, category, price, valid_from, valid_to, created_by, created_at, updated_at]
       properties:
         id:
           type: integer
@@ -225,6 +230,7 @@ components:
           enum: [肉類, 海鮮, 素食]
         description:
           type: string
+          nullable: true
         price:
           type: number
         valid_from:
@@ -285,6 +291,7 @@ components:
 
     Order:
       type: object
+      required: [id, employee_id, employee_name, menu_id, menu_name, order_date, created_by, created_at]
       properties:
         id:
           type: integer
@@ -338,6 +345,7 @@ components:
 
     ErrorEmail:
       type: object
+      required: [id, email, created_by, created_at]
       properties:
         id:
           type: integer
@@ -362,6 +370,7 @@ components:
 
     MonthlyBillingLog:
       type: object
+      required: [id, billing_period_start, billing_period_end, supplier_id, email_to, status, created_at]
       properties:
         id:
           type: integer
@@ -397,6 +406,7 @@ components:
 
     SupplierWithMenus:
       type: object
+      required: [id, name, email, menus]
       properties:
         id:
           type: integer
@@ -431,6 +441,7 @@ components:
 
     Department:
       type: object
+      required: [id, name, created_at]
       properties:
         id:
           type: integer
@@ -458,6 +469,7 @@ components:
 
     ReportEmail:
       type: object
+      required: [id, email, created_by, created_at]
       properties:
         id:
           type: integer
@@ -1021,6 +1033,33 @@ paths:
           $ref: '#/components/responses/NotFound'
 
   /api/suppliers:
+    get:
+      tags: [A007 供應商管理]
+      summary: 查詢供應商清單（支援精確與模糊查詢）
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: search_type
+          in: query
+          schema:
+            type: string
+            enum: [exact, fuzzy]
+      responses:
+        '200':
+          description: 供應商清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Supplier'
     post:
       tags: [A002 供應商]
       summary: 管理員新增供應商
@@ -1227,35 +1266,6 @@ paths:
                           $ref: '#/components/schemas/MonthlyBillingLog'
 
   # ==================== A007 ====================
-
-  /api/suppliers:
-    get:
-      tags: [A007 供應商管理]
-      summary: 查詢供應商清單（支援精確與模糊查詢）
-      parameters:
-        - name: name
-          in: query
-          schema:
-            type: string
-        - name: search_type
-          in: query
-          schema:
-            type: string
-            enum: [exact, fuzzy]
-      responses:
-        '200':
-          description: 供應商清單
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiSuccess'
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/Supplier'
 
   /api/suppliers/{id}:
     get:
