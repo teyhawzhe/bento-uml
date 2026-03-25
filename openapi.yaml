@@ -465,6 +465,98 @@ components:
         name:
           type: string
 
+    # ==================== A012 Schemas ====================
+
+    ImportEmployeeResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        department_id:
+          type: integer
+        is_admin:
+          type: boolean
+          enum: [false]
+        is_active:
+          type: boolean
+          enum: [true]
+
+    ImportDepartmentResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    ImportSupplierResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        contact_person:
+          type: string
+        business_registration_no:
+          type: string
+        is_active:
+          type: boolean
+
+    ImportMenuResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        supplier_id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        valid_from:
+          type: string
+          format: date
+        valid_to:
+          type: string
+          format: date
+
+    ImportErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [failed]
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "第 5003 行驗證失敗，已 Rollback，請手動刪除已處理列後重新上傳"
+            failed_at_line:
+              type: integer
+              description: 發生錯誤的 CSV 行號
+            reason:
+              type: string
+              description: 錯誤原因
+
     # ==================== A008 Schemas ====================
 
     ReportEmail:
@@ -1458,3 +1550,224 @@ paths:
           $ref: '#/components/responses/SuccessNoData'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  # ==================== A012 ====================
+
+  /api/admin/import/template/{type}:
+    get:
+      tags: [A012 CSV 批次匯入]
+      summary: 下載 CSV 範本
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: 資料類型（employees / departments / suppliers / menus）
+          schema:
+            type: string
+            enum: [employees, departments, suppliers, menus]
+      responses:
+        '200':
+          description: 回傳 CSV 範本檔案
+          content:
+            text/csv:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/admin/import/employees:
+    post:
+      tags: [A012 CSV 批次匯入]
+      summary: 批次匯入員工 CSV
+      description: |
+        - CSV 檔案必須為 UTF-8 編碼，非 UTF-8 則拒絕匯入
+        - 第一行為表頭（username,name,email,department_id），匯入時驗證表頭正確性
+        - 匯入的員工一律設為 is_admin=false、is_active=true
+        - 以 5000 筆為一批次進行 Transaction，失敗時整批 Rollback
+        - 回傳錯誤時包含已處理至的行號，請手動刪除已處理列後重新上傳
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 匯入成功，回傳已匯入的員工清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ImportEmployeeResult'
+        '400':
+          description: 表頭格式不正確
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: 資料驗證失敗，已 Rollback，回傳錯誤行號
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportErrorResponse'
+
+  /api/admin/import/departments:
+    post:
+      tags: [A012 CSV 批次匯入]
+      summary: 批次匯入部門 CSV
+      description: |
+        - CSV 檔案必須為 UTF-8 編碼，非 UTF-8 則拒絕匯入
+        - 第一行為表頭（name），匯入時驗證表頭正確性
+        - 以 5000 筆為一批次進行 Transaction，失敗時整批 Rollback
+        - 回傳錯誤時包含已處理至的行號，請手動刪除已處理列後重新上傳
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 匯入成功，回傳已匯入的部門清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ImportDepartmentResult'
+        '400':
+          description: 表頭格式不正確
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: 資料驗證失敗，已 Rollback，回傳錯誤行號
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportErrorResponse'
+
+  /api/admin/import/suppliers:
+    post:
+      tags: [A012 CSV 批次匯入]
+      summary: 批次匯入供應商 CSV
+      description: |
+        - CSV 檔案必須為 UTF-8 編碼，非 UTF-8 則拒絕匯入
+        - 第一行為表頭（name,email,phone,contact_person,business_registration_no），匯入時驗證表頭正確性
+        - 以 5000 筆為一批次進行 Transaction，失敗時整批 Rollback
+        - 回傳錯誤時包含已處理至的行號，請手動刪除已處理列後重新上傳
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 匯入成功，回傳已匯入的供應商清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ImportSupplierResult'
+        '400':
+          description: 表頭格式不正確
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: 資料驗證失敗，已 Rollback，回傳錯誤行號
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportErrorResponse'
+
+  /api/admin/import/menus:
+    post:
+      tags: [A012 CSV 批次匯入]
+      summary: 批次匯入便當菜單 CSV
+      description: |
+        - CSV 檔案必須為 UTF-8 編碼，非 UTF-8 則拒絕匯入
+        - 第一行為表頭（supplier_id,name,category,description,price,valid_from,valid_to），匯入時驗證表頭正確性
+        - 以 5000 筆為一批次進行 Transaction，失敗時整批 Rollback
+        - 回傳錯誤時包含已處理至的行號，請手動刪除已處理列後重新上傳
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 匯入成功，回傳已匯入的菜單清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ImportMenuResult'
+        '400':
+          description: 表頭格式不正確
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: 資料驗證失敗，已 Rollback，回傳錯誤行號
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportErrorResponse'

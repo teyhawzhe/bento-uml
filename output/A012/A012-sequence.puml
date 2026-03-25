@@ -1,0 +1,49 @@
+@startuml A012-sequence
+actor "系統管理員" as Admin
+participant "前端" as Frontend
+participant "後端 API" as API
+database "資料庫" as DB
+
+== 下載 CSV 範本 ==
+Admin -> Frontend : 選擇類型，點擊「下載範本」
+Frontend -> API : GET /api/admin/import/template/{type}
+API --> Frontend : 200 回傳 CSV 範本檔案（含表頭）
+Frontend --> Admin : 下載 CSV 檔案
+
+== CSV 批次匯入 ==
+Admin -> Frontend : 選擇類型，上傳 CSV 檔案
+Frontend -> API : POST /api/admin/import/{type}\n（multipart/form-data）
+
+API -> API : 驗證檔案編碼是否為 UTF-8
+
+alt 編碼非 UTF-8
+    API --> Frontend : 400 檔案編碼非 UTF-8
+    Frontend --> Admin : 顯示錯誤訊息
+else 編碼正確
+    API -> API : 讀取第一行，驗證表頭
+
+    alt 表頭不正確
+        API --> Frontend : 400 表頭格式不正確
+        Frontend --> Admin : 顯示錯誤訊息
+    else 表頭正確
+        loop 每 5000 筆一批次
+            API -> API : 逐列驗證欄位完整性
+            API -> DB : 查詢既有資料（確認是否重複）
+            DB --> API : 查詢結果
+
+            alt 驗證失敗（欄位錯誤 / 資料重複）
+                API -> DB : Rollback 本批次
+                API --> Frontend : 422 錯誤：已處理至第 N 行，\n請手動刪除已處理列後重新上傳
+                Frontend --> Admin : 顯示錯誤行號與原因
+            else 驗證通過
+                API -> DB : 批次寫入（Commit）
+                DB --> API : 寫入成功
+            end
+        end
+
+        API --> Frontend : 200 本次匯入成功的資料清單
+        Frontend --> Admin : 顯示匯入成功清單
+    end
+end
+
+@enduml

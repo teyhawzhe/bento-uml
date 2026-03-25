@@ -81,6 +81,18 @@ rectangle "A010 部門管理與部門管理者權限" {
     usecase "修改部門名稱" as A010_UC3
 }
 
+rectangle "A012 CSV 批次匯入管理" {
+    usecase "下載員工 CSV 範本" as A012_UC1
+    usecase "下載部門 CSV 範本" as A012_UC2
+    usecase "下載供應商 CSV 範本" as A012_UC3
+    usecase "下載便當菜單 CSV 範本" as A012_UC4
+    usecase "批次匯入員工 CSV" as A012_UC5
+    usecase "批次匯入部門 CSV" as A012_UC6
+    usecase "批次匯入供應商 CSV" as A012_UC7
+    usecase "批次匯入便當菜單 CSV" as A012_UC8
+    usecase "查看匯入成功資料清單" as A012_UC9
+}
+
 rectangle "A011 管理員以部門篩選員工清單" {
     usecase "選擇部門篩選員工清單" as A011_UC1
     usecase "查詢全部員工清單" as A011_UC2
@@ -168,6 +180,17 @@ Admin --> A008_UC3
 Admin --> A010_UC1
 Admin --> A010_UC2
 Admin --> A010_UC3
+
+' A012
+Admin --> A012_UC1
+Admin --> A012_UC2
+Admin --> A012_UC3
+Admin --> A012_UC4
+Admin --> A012_UC5
+Admin --> A012_UC6
+Admin --> A012_UC7
+Admin --> A012_UC8
+Admin --> A012_UC9
 
 ' A011
 Admin --> A011_UC1

@@ -1,0 +1,59 @@
+@startuml A012-er
+note as N1
+  A012 CSV 批次匯入管理
+  沿用現有資料表，無新增欄位
+  以下列出各匯入類型所對應的資料表
+end note
+
+entity "employees（員工）" as employees {
+    * id : INTEGER <<PK>>
+    --
+    * username : VARCHAR
+    * password_hash : VARCHAR
+    * name : VARCHAR
+    * email : VARCHAR
+    * is_admin : BOOLEAN <<固定 false>>
+    * is_active : BOOLEAN <<固定 true>>
+    * department_id : INTEGER <<FK>>
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+}
+
+entity "departments（部門）" as departments {
+    * id : INTEGER <<PK>>
+    --
+    * name : VARCHAR
+    * created_at : TIMESTAMP
+}
+
+entity "suppliers（供應商）" as suppliers {
+    * id : INTEGER <<PK>>
+    --
+    * name : VARCHAR
+    * email : VARCHAR
+    * phone : VARCHAR
+    * contact_person : VARCHAR
+    * business_registration_no : VARCHAR
+    * is_active : BOOLEAN
+    * created_at : TIMESTAMP
+}
+
+entity "menus（便當菜單）" as menus {
+    * id : INTEGER <<PK>>
+    --
+    * supplier_id : INTEGER <<FK>>
+    * name : VARCHAR
+    * category : VARCHAR
+    * description : VARCHAR
+    * price : DECIMAL
+    * valid_from : DATE
+    * valid_to : DATE
+    * created_by : INTEGER <<FK>>
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+}
+
+employees }o--|| departments : "department_id → id"
+menus }o--|| suppliers : "supplier_id → id"
+
+@enduml
