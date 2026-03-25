@@ -691,8 +691,15 @@ paths:
 
   /api/admin/employees:
     get:
-      tags: [A001 管理員帳號]
-      summary: 查詢員工清單
+      tags: [A001 管理員帳號, A011 部門篩選員工]
+      summary: 查詢員工清單（可依部門篩選）
+      parameters:
+        - name: department_id
+          in: query
+          required: false
+          description: 部門 ID，不帶此參數時回傳全部員工
+          schema:
+            type: integer
       responses:
         '200':
           description: 員工清單

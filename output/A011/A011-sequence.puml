@@ -1,0 +1,28 @@
+@startuml A011-sequence
+actor "系統管理員" as Admin
+participant "前端" as Frontend
+participant "後端 API" as API
+database "資料庫" as DB
+
+Admin -> Frontend : 進入員工管理頁面
+Frontend -> API : GET /api/admin/departments
+API -> DB : 查詢所有部門
+DB --> API : 部門清單
+API --> Frontend : 200 部門清單
+Frontend --> Admin : 渲染部門下拉選單（含「全部」選項）
+
+Admin -> Frontend : 選擇部門
+
+alt 選擇「全部」
+    Frontend -> API : GET /api/admin/employees
+    API -> DB : 查詢所有員工
+else 選擇特定部門
+    Frontend -> API : GET /api/admin/employees?department_id={id}
+    API -> DB : 依 department_id 篩選員工
+end
+
+DB --> API : 員工清單
+API --> Frontend : 200 員工清單
+Frontend --> Admin : 顯示篩選結果
+
+@enduml

@@ -1,0 +1,25 @@
+@startuml A011-er
+entity "employees（員工）" as employees {
+    * id : INTEGER <<PK>>
+    --
+    * username : VARCHAR
+    * password_hash : VARCHAR
+    * name : VARCHAR
+    * email : VARCHAR
+    * is_admin : BOOLEAN
+    * is_active : BOOLEAN
+    * department_id : INTEGER <<FK>>
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+}
+
+entity "departments（部門）" as departments {
+    * id : INTEGER <<PK>>
+    --
+    * name : VARCHAR
+    * created_at : TIMESTAMP
+}
+
+employees }o--|| departments : "department_id → id"
+
+@enduml

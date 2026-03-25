@@ -1,0 +1,18 @@
+@startuml A011-activity
+start
+
+:管理員進入員工管理頁面;
+:系統載入部門清單，渲染下拉選單（含「全部」選項）;
+:管理員選擇部門條件;
+
+if (選擇「全部」?) then (是)
+    :呼叫 GET /api/admin/employees（不帶參數）;
+else (否)
+    :呼叫 GET /api/admin/employees?department_id={id};
+endif
+
+:後端依條件篩選員工資料;
+:頁面顯示篩選結果;
+
+stop
+@enduml

@@ -75,6 +75,18 @@ rectangle "A008 月結報表收件信箱設定" {
     usecase "刪除報表收件信箱" as A008_UC3
 }
 
+rectangle "A010 部門管理與部門管理者權限" {
+    usecase "查詢部門清單" as A010_UC1
+    usecase "新增部門" as A010_UC2
+    usecase "修改部門名稱" as A010_UC3
+}
+
+rectangle "A011 管理員以部門篩選員工清單" {
+    usecase "選擇部門篩選員工清單" as A011_UC1
+    usecase "查詢全部員工清單" as A011_UC2
+    usecase "取得部門清單（下拉選單）" as A011_UC3
+}
+
 rectangle "A009 前端介面 TAB 分頁與訊息提示規範" {
     usecase "切換至訂便當頁籤" as A009_UC1
     usecase "切換至我的訂單頁籤" as A009_UC2
@@ -151,6 +163,17 @@ A007_UC4 .> A007_UC5 : <<include>>
 Admin --> A008_UC1
 Admin --> A008_UC2
 Admin --> A008_UC3
+
+' A010
+Admin --> A010_UC1
+Admin --> A010_UC2
+Admin --> A010_UC3
+
+' A011
+Admin --> A011_UC1
+Admin --> A011_UC2
+A011_UC1 .> A011_UC3 : <<include>>
+A011_UC2 .> A011_UC3 : <<include>>
 
 ' A009
 Employee --> A009_UC1

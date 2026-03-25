@@ -1,0 +1,18 @@
+@startuml A011-usecase
+left to right direction
+skinparam actorStyle awesome
+
+actor "系統管理員" as Admin
+
+rectangle "A011 管理員以部門篩選員工清單" {
+    usecase "選擇部門篩選員工清單" as UC1
+    usecase "查詢全部員工清單" as UC2
+    usecase "取得部門清單（下拉選單）" as UC3
+}
+
+Admin --> UC1
+Admin --> UC2
+UC1 .> UC3 : <<include>>
+UC2 .> UC3 : <<include>>
+
+@enduml
