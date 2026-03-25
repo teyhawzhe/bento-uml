@@ -18,9 +18,9 @@ BE --> FE : 回傳建立成功
 FE --> 系統管理員 : 顯示建立成功
 
 == 管理員查詢菜單清單 ==
-系統管理員 -> FE : 進入菜單管理頁面（可選擇含歷史）
-FE -> BE : GET /api/menus?include_history=true|false（JWT Token）
-BE -> DB : 查詢菜單（依 include_history 決定是否含過期）
+系統管理員 -> FE : 進入菜單管理頁面
+FE -> BE : GET /api/menus（JWT Token）
+BE -> DB : 查詢菜單清單
 DB --> BE : 回傳菜單清單
 BE --> FE : 200 回傳菜單清單
 FE --> 系統管理員 : 顯示菜單清單

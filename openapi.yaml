@@ -959,12 +959,6 @@ paths:
     get:
       tags: [A002 菜單管理]
       summary: 查詢菜單清單（管理員）
-      parameters:
-        - name: include_history
-          in: query
-          schema:
-            type: boolean
-          description: true 時包含已過期的歷史菜單
       responses:
         '200':
           description: 菜單清單

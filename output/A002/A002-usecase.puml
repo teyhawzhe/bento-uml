@@ -15,7 +15,7 @@ rectangle 訂便當系統 {
   usecase "新增供應商" as UC11
   usecase "建立菜單" as UC5
   usecase "設定菜單有效期間" as UC6
-  usecase "查詢菜單清單（含歷史）" as UC9
+  usecase "查詢菜單清單" as UC9
   usecase "編輯菜單" as UC10
   usecase "取消指定員工的訂餐" as UC7
 }

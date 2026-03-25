@@ -65,7 +65,7 @@ fork again
 fork again
   :管理員進入菜單管理頁面;
   fork
-    :查詢菜單清單\n（帶 include_history 可含歷史菜單）;
+    :查詢菜單清單;
     stop
   fork again
     :選取菜單並編輯欄位;
