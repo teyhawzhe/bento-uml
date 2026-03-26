@@ -114,11 +114,42 @@ else 格式正確
   else 舊密碼正確
     BE -> DB : 更新 password_hash
     DB --> BE : 更新成功
+    BE -> DB : 查詢員工 Email
+    DB --> BE : 回傳 Email
+    BE -> MAIL : 寄送 Email 通知密碼已修改
+    MAIL --> BE : 寄送成功
     BE -> DB : 將該員工所有 Refresh Token 標記為作廢（is_revoked = true）
     DB --> BE : 更新成功
     BE --> FE : 200 修改成功
     FE -> FE : 清除本地 Access Token 與 Refresh Token
     FE --> 員工 : 顯示修改成功並導向登入頁面
+  end
+end
+
+== 管理員修改密碼流程 ==
+管理員 -> FE : 輸入舊密碼與新密碼
+FE -> BE : PATCH /api/admin/auth/change-password（JWT Token、舊密碼、新密碼）
+BE -> BE : 驗證新密碼格式（8～16 位，須含大小寫字母）
+alt 格式不符
+  BE --> FE : 400 密碼格式錯誤
+  FE --> 管理員 : 顯示密碼格式錯誤訊息
+else 格式正確
+  BE -> DB : 查詢管理員資料
+  DB --> BE : 回傳管理員資料
+  BE -> BE : 驗證舊密碼
+  alt 舊密碼錯誤
+    BE --> FE : 401 舊密碼錯誤
+    FE --> 管理員 : 顯示錯誤訊息
+  else 舊密碼正確
+    BE -> DB : 更新 password_hash
+    DB --> BE : 更新成功
+    BE -> MAIL : 寄送 Email 通知管理員密碼已修改
+    MAIL --> BE : 寄送成功
+    BE -> DB : 將該管理員所有 Refresh Token 標記為作廢（is_revoked = true）
+    DB --> BE : 更新成功
+    BE --> FE : 200 修改成功
+    FE -> FE : 清除本地 Access Token 與 Refresh Token
+    FE --> 管理員 : 顯示修改成功並導向管理員登入頁面
   end
 end
 

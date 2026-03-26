@@ -84,10 +84,30 @@ if (舊密碼正確?) then (否)
   stop
 endif
 :更新 password_hash;
-:顯示修改成功;
+:寄送 Email 通知密碼已修改;
 :後端將該員工所有 Refresh Token 標記為作廢;
 :前端清除本地 Access Token 與 Refresh Token;
 :導向登入頁面;
+stop
+
+|管理員修改密碼流程|
+start
+:管理員輸入舊密碼與新密碼;
+:系統驗證新密碼格式\n（8～16 位，須含大小寫字母）;
+if (格式正確?) then (否)
+  :顯示密碼格式錯誤訊息;
+  stop
+endif
+:系統驗證舊密碼是否正確;
+if (舊密碼正確?) then (否)
+  :顯示錯誤訊息;
+  stop
+endif
+:更新 password_hash;
+:寄送 Email 通知密碼已修改;
+:後端將該管理員所有 Refresh Token 標記為作廢;
+:前端清除本地 Access Token 與 Refresh Token;
+:導向管理員登入頁面;
 stop
 
 |新增單一員工帳號流程|

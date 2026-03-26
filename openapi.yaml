@@ -248,6 +248,33 @@ components:
           type: string
           format: date-time
 
+    MenuForEmployee:
+      description: 員工端便當選項（不含價格，含廠商名稱）
+      type: object
+      required: [id, name, category, supplier_name, valid_from, valid_to]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: 便當名稱
+        category:
+          type: string
+          enum: [肉類, 海鮮, 素食]
+          description: 種類
+        supplier_name:
+          type: string
+          description: 廠商名稱
+        description:
+          type: string
+          nullable: true
+        valid_from:
+          type: string
+          format: date
+        valid_to:
+          type: string
+          format: date
+
     CreateMenuRequest:
       type: object
       required: [supplier_id, name, category, price, valid_from, valid_to]
@@ -712,7 +739,25 @@ paths:
   /api/auth/change-password:
     patch:
       tags: [A001 員工登入]
-      summary: 員工修改密碼（成功後自動登出）
+      summary: 員工修改密碼（成功後發送 Email 通知並自動登出）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessNoData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/auth/change-password:
+    patch:
+      tags: [A001 管理員帳號]
+      summary: 管理員修改自己的密碼（成功後發送 Email 通知並自動登出）
       requestBody:
         required: true
         content:
@@ -932,10 +977,10 @@ paths:
   /api/orders/menu:
     get:
       tags: [A002 員工訂餐]
-      summary: 取得下週便當選項
+      summary: 取得下週便當選項（員工端，不含價格，含廠商名稱）
       responses:
         '200':
-          description: 下週有效菜單清單
+          description: 下週有效菜單清單（每筆含便當名稱、種類、廠商名稱）
           content:
             application/json:
               schema:
@@ -946,7 +991,7 @@ paths:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Menu'
+                          $ref: '#/components/schemas/MenuForEmployee'
         '403':
           $ref: '#/components/responses/Forbidden'
 
