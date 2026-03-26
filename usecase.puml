@@ -118,6 +118,7 @@ Employee --> A001_UC2
 Employee --> A001_UC3
 Employee --> A001_UC4
 Employee --> A001_UC5
+Admin --> A001_UC5
 Admin --> A001_UC6
 Admin --> A001_UC7
 Admin --> A001_UC8

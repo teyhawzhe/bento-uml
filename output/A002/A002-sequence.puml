@@ -41,10 +41,10 @@ alt 已截止（星期五 12:00 後）
   BE --> FE : 回傳截止提示
   FE --> 員工 : 顯示截止提示，僅可查看記錄
 else 未截止
-  BE -> DB : 查詢截止日後有效的菜單（不限週一至週五，依菜單設定為準）
-  DB --> BE : 回傳菜單清單
-  BE --> FE : 回傳菜單清單
-  FE --> 員工 : 顯示便當選項
+  BE -> DB : 查詢截止日後有效的菜單（JOIN suppliers，不限週一至週五）
+  DB --> BE : 回傳菜單清單（含供應商名稱）
+  BE --> FE : 回傳菜單清單（id、name、category、supplier_name，不含 price）
+  FE --> 員工 : 顯示便當選項（格式：便當名稱 / 種類 / 廠商名稱）
   員工 -> FE : 選擇日期與便當
   FE -> BE : POST /api/orders（JWT Token）
   BE -> DB : 查詢該員工該日是否已有訂單
