@@ -1,0 +1,22 @@
+@startuml A013-activity
+
+title A013 員工訂餐報表查詢與 PDF 下載 - 活動圖
+
+start
+
+:管理員進入報表查詢頁面;
+:選擇日期起訖範圍;
+:選擇排序方式（預設：日期）;
+:系統查詢訂餐資料\n（JOIN employees、departments、menus、suppliers）;
+:畫面顯示報表結果\n（日期、部門、員工姓名、便當名稱、廠商）;
+
+if (管理員點擊「下載 PDF」?) then (是)
+  :系統依目前日期範圍與排序方式產生 PDF;
+  :瀏覽器下載 PDF 檔案;
+else (否)
+  :管理員可調整日期範圍或排序方式重新查詢;
+endif
+
+stop
+
+@enduml

@@ -492,6 +492,30 @@ components:
         name:
           type: string
 
+    # ==================== A013 Schemas ====================
+
+    OrderReportRow:
+      description: 訂餐報表單筆資料
+      type: object
+      required: [order_date, department_name, employee_name, menu_name, supplier_name]
+      properties:
+        order_date:
+          type: string
+          format: date
+          description: 日期
+        department_name:
+          type: string
+          description: 部門
+        employee_name:
+          type: string
+          description: 員工姓名
+        menu_name:
+          type: string
+          description: 便當名稱
+        supplier_name:
+          type: string
+          description: 廠商
+
     # ==================== A012 Schemas ====================
 
     ImportEmployeeResult:
@@ -1816,3 +1840,82 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImportErrorResponse'
+
+  # ==================== A013 ====================
+
+  /api/admin/reports/orders:
+    get:
+      tags: [A013 訂餐報表]
+      summary: 查詢員工訂餐報表（JSON 預覽）
+      parameters:
+        - name: date_from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 查詢起始日期
+        - name: date_to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 查詢結束日期
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [date, department, employee_name, supplier_name]
+            default: date
+          description: 排序方式（預設依日期）
+      responses:
+        '200':
+          description: 報表資料清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/OrderReportRow'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/reports/orders/pdf:
+    get:
+      tags: [A013 訂餐報表]
+      summary: 下載員工訂餐報表 PDF
+      parameters:
+        - name: date_from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [date, department, employee_name, supplier_name]
+            default: date
+      responses:
+        '200':
+          description: PDF 檔案
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'

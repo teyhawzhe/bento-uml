@@ -1,0 +1,35 @@
+@startuml A013-sequence
+
+title A013 員工訂餐報表查詢與 PDF 下載 - 序列圖
+
+actor "系統管理員" as admin
+participant "前端" as FE
+participant "後端 API" as BE
+database "資料庫" as DB
+
+== 查詢並預覽報表 ==
+admin -> FE : 選擇日期起訖範圍與排序方式
+FE -> BE : GET /api/admin/reports/orders\n?date_from={date}&date_to={date}&sort_by={欄位}
+BE -> DB : SELECT orders JOIN employees JOIN departments\n  JOIN menus JOIN suppliers\n  WHERE order_date BETWEEN date_from AND date_to\n  ORDER BY sort_by
+DB --> BE : 回傳訂餐資料
+BE --> FE : 200 OK（日期、部門、員工姓名、便當名稱、廠商）
+FE --> admin : 畫面顯示報表結果
+
+== 切換排序方式 ==
+admin -> FE : 選擇排序方式
+FE -> BE : GET /api/admin/reports/orders\n?date_from={date}&date_to={date}&sort_by={新欄位}
+BE -> DB : 同上查詢，依新排序欄位排序
+DB --> BE : 回傳訂餐資料
+BE --> FE : 200 OK（重新排序後的資料）
+FE --> admin : 畫面更新排序結果
+
+== 下載 PDF ==
+admin -> FE : 點擊「下載 PDF」
+FE -> BE : GET /api/admin/reports/orders/pdf\n?date_from={date}&date_to={date}&sort_by={欄位}
+BE -> DB : 同上查詢
+DB --> BE : 回傳訂餐資料
+BE -> BE : 產生 PDF（含報表資料）
+BE --> FE : 200 OK（PDF 二進位檔案，Content-Type: application/pdf）
+FE --> admin : 瀏覽器觸發 PDF 下載
+
+@enduml

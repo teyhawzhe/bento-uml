@@ -1,0 +1,22 @@
+@startuml A013-usecase
+
+title A013 員工訂餐報表查詢與 PDF 下載 - Use Case 圖
+
+actor "系統管理員" as admin
+
+rectangle "A013 員工訂餐報表查詢與 PDF 下載" {
+  usecase "選擇日期範圍查詢訂餐報表" as UC1
+  usecase "切換排序方式" as UC2
+  usecase "預覽報表資料" as UC3
+  usecase "下載 PDF 報表" as UC4
+}
+
+admin --> UC1
+admin --> UC2
+admin --> UC3
+admin --> UC4
+
+UC1 .> UC3 : <<include>>
+UC2 .> UC3 : <<include>>
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml A013-er
+
+title A013 員工訂餐報表查詢與 PDF 下載 - ER 圖
+
+note "A013 無新增資料表，\n資料來源為現有資料表的 JOIN 查詢" as N1
+
+entity "orders" as orders {
+  * id : INT <<PK>>
+  --
+  * employee_id : INT <<FK>>
+  * menu_id : INT <<FK>>
+  * order_date : DATE
+  * created_by : INT <<FK>>
+  * created_at : DATETIME
+}
+
+entity "employees" as employees {
+  * id : INT <<PK>>
+  --
+  * name : VARCHAR
+  * department_id : INT <<FK>>
+}
+
+entity "departments" as departments {
+  * id : INT <<PK>>
+  --
+  * name : VARCHAR
+}
+
+entity "menus" as menus {
+  * id : INT <<PK>>
+  --
+  * supplier_id : INT <<FK>>
+  * name : VARCHAR
+}
+
+entity "suppliers" as suppliers {
+  * id : INT <<PK>>
+  --
+  * name : VARCHAR
+}
+
+orders }o--|| employees : employee_id
+employees }o--|| departments : department_id
+orders }o--|| menus : menu_id
+menus }o--|| suppliers : supplier_id
+
+@enduml

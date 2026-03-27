@@ -214,4 +214,19 @@ Admin --> A009_UC8
 Admin --> A009_UC9
 Admin --> A009_UC10
 
+rectangle "A013 員工訂餐報表查詢與 PDF 下載" {
+    usecase "選擇日期範圍查詢訂餐報表" as A013_UC1
+    usecase "切換排序方式" as A013_UC2
+    usecase "預覽報表資料" as A013_UC3
+    usecase "下載 PDF 報表" as A013_UC4
+}
+
+' A013
+Admin --> A013_UC1
+Admin --> A013_UC2
+Admin --> A013_UC3
+Admin --> A013_UC4
+A013_UC1 .> A013_UC3 : <<include>>
+A013_UC2 .> A013_UC3 : <<include>>
+
 @enduml
