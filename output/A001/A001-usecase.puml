@@ -1,7 +1,7 @@
 @startuml A001-usecase
 
 left to right direction
-title A001 內部員工登入驗證 - Use Case 圖
+title A001 員工登入驗證與帳號管理 - Use Case 圖
 
 actor 員工
 actor 系統管理員

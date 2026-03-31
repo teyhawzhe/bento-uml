@@ -1,6 +1,6 @@
 @startuml A001-activity
 
-title A001 內部員工登入驗證 - 活動圖
+title A001 員工登入驗證與帳號管理 - 活動圖
 
 |員工登入流程|
 start

@@ -1,6 +1,6 @@
 @startuml A010-er
 
-title A010 部門管理與部門管理者權限 - ER 圖
+title A010 部門管理 - ER 圖
 
 entity "employees\n員工資料表" as employees {
   * id : INT <<PK>>

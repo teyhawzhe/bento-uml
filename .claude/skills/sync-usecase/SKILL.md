@@ -1,6 +1,7 @@
-# sync-usecase
-
-每當有新增需求或更改需求後，執行此指令以重新產出根目錄的 `usecase.puml`，統整所有需求的 Use Case。
+---
+name: sync-usecase
+description: 重新產出根目錄的 usecase.puml，統整所有需求的 Use Case。當新增或修改需求後需要同步 usecase.puml 時使用。
+---
 
 ## 執行步驟
 

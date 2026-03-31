@@ -1,7 +1,7 @@
 @startuml A002-usecase
 
 left to right direction
-title A002 員工訂便當 - Use Case 圖
+title A002 員工訂餐與菜單管理 - Use Case 圖
 
 actor 員工
 actor 系統管理員

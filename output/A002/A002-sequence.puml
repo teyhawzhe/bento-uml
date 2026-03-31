@@ -1,6 +1,6 @@
 @startuml A002-sequence
 
-title A002 員工訂便當 - 序列圖
+title A002 員工訂餐與菜單管理 - 序列圖
 
 actor 員工
 actor 系統管理員

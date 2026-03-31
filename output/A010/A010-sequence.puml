@@ -1,6 +1,6 @@
 @startuml A010-sequence
 
-title A010 部門管理與部門管理者權限 - 序列圖
+title A010 部門管理 - 序列圖
 
 actor "系統管理員" as admin
 participant "前端" as fe

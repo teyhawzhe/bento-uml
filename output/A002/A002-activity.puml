@@ -1,6 +1,6 @@
 @startuml A002-activity
 
-title A002 員工訂便當 - 活動圖
+title A002 員工訂餐與菜單管理 - 活動圖
 
 fork
   :員工登入後進入訂餐頁面;

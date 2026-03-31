@@ -1,17 +1,18 @@
-# update-uml
-
-當需求有新增或修改時，執行此指令以重新產出對應需求的所有 UML 圖。
+---
+name: update-uml
+description: 重新產出指定需求的所有 UML 圖。當需求文件內容有修改、標題變更、或需要重新產出 UML 時使用，例如「更新 A001」、「重新產出 A002 的圖」、「A001 標題改了請重新產出」。
+---
 
 ## 使用方式
 
+指定單一需求：
 ```
-/update-uml A001
+update-uml A001
 ```
 
-可同時指定多個需求：
-
+同時指定多個需求：
 ```
-/update-uml A001 A002
+update-uml A001 A002
 ```
 
 ## 執行步驟
@@ -34,10 +35,12 @@
    - 不補充需求文件沒有提到的功能
 
 5. 同步根目錄統整檔案：
-   - 執行 `/sync-usecase` 邏輯，重新產出根目錄的 `usecase.puml`
-   - 執行 `/sync-openapi` 邏輯，重新產出根目錄的 `openapi.yaml`
+   - 執行 sync-usecase，重新產出根目錄的 `usecase.puml`
+   - 執行 sync-openapi，重新產出根目錄的 `openapi.yaml`
 
-6. 更新完成後列出每個檔案的異動摘要
+6. 標示必填欄位（執行 mark-required 邏輯）
+
+7. 更新完成後列出每個檔案的異動摘要
 
 ## 注意
 

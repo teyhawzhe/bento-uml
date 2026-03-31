@@ -1,23 +1,23 @@
-# mark-required
-
-標示 ER 圖與 OpenAPI Schema 中的必填欄位。
+---
+name: mark-required
+description: 標示 ER 圖與 OpenAPI Schema 中的必填欄位。當需要標記欄位必填狀態時使用，例如「標示 A001 必填欄位」。
+---
 
 ## 使用方式
 
+指定單一需求：
 ```
-/mark-required A001
+mark-required A001
 ```
 
-可同時指定多個需求：
-
+同時指定多個需求：
 ```
-/mark-required A001 A002
+mark-required A001 A002
 ```
 
 不指定編號則處理所有需求：
-
 ```
-/mark-required
+mark-required
 ```
 
 ## 執行步驟

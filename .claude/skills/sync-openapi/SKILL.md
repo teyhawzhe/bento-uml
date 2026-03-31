@@ -1,6 +1,7 @@
-# sync-openapi
-
-每當有新增需求或更改需求後，執行此指令以更新根目錄的 `openapi.yaml`，同步所有需求的 API 定義。
+---
+name: sync-openapi
+description: 更新根目錄的 openapi.yaml，同步所有需求的 API 定義。當新增或修改需求後需要同步 openapi.yaml 時使用。
+---
 
 ## 執行策略
 

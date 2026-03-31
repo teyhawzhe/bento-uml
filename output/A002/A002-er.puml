@@ -1,6 +1,6 @@
 @startuml A002-er
 
-title A002 員工訂便當 - ER 圖
+title A002 員工訂餐與菜單管理 - ER 圖
 
 entity "employees\n員工資料表" as employees {
   * id : INT <<PK>>

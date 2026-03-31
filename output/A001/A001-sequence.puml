@@ -1,6 +1,6 @@
 @startuml A001-sequence
 
-title A001 內部員工登入驗證 - 序列圖
+title A001 員工登入驗證與帳號管理 - 序列圖
 
 actor 員工
 actor 管理員
