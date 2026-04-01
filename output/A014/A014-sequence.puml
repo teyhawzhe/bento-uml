@@ -1,0 +1,54 @@
+@startuml A014-sequence
+actor 管理員
+participant "前端" as FE
+participant "後端 API" as BE
+database "資料庫" as DB
+
+== 瀏覽行事曆 ==
+管理員 -> FE : 進入行事曆設定頁
+FE -> BE : GET /api/admin/calendar?year={year}&month={month}
+BE -> DB : 查詢指定年月行事曆資料
+DB --> BE : 回傳日期清單（含 is_workday）
+BE --> FE : 回傳行事曆資料
+FE --> 管理員 : 顯示行事曆（唯讀，非上班日紅色標註）
+
+== 預產整年行事曆 ==
+管理員 -> FE : 點擊「預產行事曆」
+FE --> 管理員 : 跳出確認提示
+管理員 -> FE : 確認執行
+FE -> BE : POST /api/admin/calendar/generate
+BE -> DB : 覆蓋整年行事曆（週六、日設為非上班日）
+DB --> BE : 成功
+BE --> FE : 回傳成功
+FE --> 管理員 : 重新顯示行事曆
+
+== 編輯行事曆 ==
+管理員 -> FE : 點擊「編輯」按鈕
+FE --> 管理員 : 進入編輯模式
+管理員 -> FE : 點擊日期切換狀態
+FE --> 管理員 : 畫面即時更新（尚未儲存）
+管理員 -> FE : 點擊「更新」按鈕
+FE -> BE : PUT /api/admin/calendar
+note right : body: [{date, is_workday}]
+BE -> DB : 更新指定日期的 is_workday
+DB --> BE : 成功
+BE --> FE : 回傳成功
+FE --> 管理員 : 回到唯讀狀態
+
+== 切換月份（有未儲存變更）==
+管理員 -> FE : 切換至其他月份
+FE --> 管理員 : 提醒「尚有修改未更新，請先按更新」
+
+== 上傳 CSV ==
+管理員 -> FE : 選擇 CSV 檔案上傳
+FE -> BE : POST /api/admin/calendar/import
+BE -> BE : 解析 CSV 內容
+BE --> FE : 回傳解析結果（日期清單與狀態）
+FE --> 管理員 : 顯示 CSV 預覽畫面
+管理員 -> FE : 確認匯入
+FE -> BE : POST /api/admin/calendar/import（確認）
+BE -> DB : 批次更新行事曆資料
+DB --> BE : 成功
+BE --> FE : 回傳成功
+FE --> 管理員 : 重新顯示行事曆
+@enduml

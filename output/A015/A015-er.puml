@@ -1,0 +1,14 @@
+@startuml A015-er
+entity "menu_notification_log" {
+    * id : INT <<PK>>
+    --
+    * notify_date : DATE
+    * missing_from : DATE
+    * missing_to : DATE
+    * status : VARCHAR
+}
+
+entity "menu_notification_dismiss" {
+    * dismiss_date : DATE <<PK>>
+}
+@enduml

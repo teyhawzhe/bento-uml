@@ -492,6 +492,40 @@ components:
         name:
           type: string
 
+    # ==================== A014 Schemas ====================
+
+    WorkCalendarDay:
+      type: object
+      required: [date, is_workday]
+      properties:
+        date:
+          type: string
+          format: date
+          description: 日期
+        is_workday:
+          type: boolean
+          description: 是否為上班日
+
+    # ==================== A015 Schemas ====================
+
+    MenuNotificationLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        notify_date:
+          type: string
+          format: date
+        missing_from:
+          type: string
+          format: date
+        missing_to:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [success, fail]
+
     # ==================== A013 Schemas ====================
 
     OrderReportRow:
@@ -1917,5 +1951,160 @@ paths:
               schema:
                 type: string
                 format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ==================== A014 行事曆設定 ====================
+  /api/admin/calendar:
+    get:
+      tags: [A014 行事曆設定]
+      summary: 查詢指定年月行事曆
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 行事曆資料
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [success]
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkCalendarDay'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags: [A014 行事曆設定]
+      summary: 更新行事曆（儲存異動）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/WorkCalendarDay'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiSuccess'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/calendar/generate:
+    post:
+      tags: [A014 行事曆設定]
+      summary: 預產整年行事曆（覆蓋）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year]
+              properties:
+                year:
+                  type: integer
+      responses:
+        '200':
+          description: 預產成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiSuccess'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/calendar/import:
+    post:
+      tags: [A014 行事曆設定]
+      summary: CSV 上傳行事曆（預覽與確認）
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, confirm]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                confirm:
+                  type: boolean
+                  description: false=預覽, true=確認匯入
+      responses:
+        '200':
+          description: 預覽或匯入結果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [success]
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkCalendarDay'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ==================== A015 菜單設定提醒 ====================
+  /api/admin/notifications/menu-check:
+    get:
+      tags: [A015 菜單設定提醒]
+      summary: 檢查後一個月未設定菜單的上班日
+      responses:
+        '200':
+          description: 未設定菜單的日期清單
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [success]
+                  data:
+                    type: object
+                    properties:
+                      missing_dates:
+                        type: array
+                        items:
+                          type: string
+                          format: date
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/notifications/menu-check/dismiss:
+    post:
+      tags: [A015 菜單設定提醒]
+      summary: 標記當日已處理，不再提醒
+      responses:
+        '200':
+          description: 標記成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiSuccess'
         '401':
           $ref: '#/components/responses/Unauthorized'

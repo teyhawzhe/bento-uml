@@ -1,0 +1,43 @@
+@startuml A015-sequence
+actor 管理員
+participant "前端" as FE
+participant "後端 API" as BE
+database "資料庫" as DB
+participant "Email 服務" as MAIL
+
+== 每日排程通知（8:00）==
+[-> BE : 排程觸發
+BE -> DB : 查詢後一個月上班日清單\n（work_calendar WHERE is_workday=true）
+DB --> BE : 回傳上班日清單
+BE -> DB : 查詢各上班日是否有菜單設定
+DB --> BE : 回傳未設定菜單的日期清單
+alt 有未設定日期 AND 當日尚未發過通知
+    BE -> DB : 查詢系統錯誤通知信箱\n（A004 設定）
+    DB --> BE : 回傳收件信箱
+    BE -> MAIL : 發送 Email（列出未設定日期）
+    MAIL --> BE : 發送成功
+    BE -> DB : 寫入通知日誌（notify_date, missing_from, missing_to, status）
+    DB --> BE : 成功
+end
+
+== 管理員進入系統（即時檢查）==
+管理員 -> FE : 進入管理畫面
+FE -> BE : GET /api/admin/notifications/menu-check
+BE -> DB : 查詢後一個月上班日中未設定菜單的日期
+DB --> BE : 回傳未設定日期清單
+alt 有未設定日期 AND 當日尚未標記已處理
+    BE --> FE : 回傳未設定日期清單
+    FE --> 管理員 : 顯示彈出視窗 + 頂部警示橫幅
+    FE --> 管理員 : 自動跳轉至菜單設定頁面
+    管理員 -> FE : 完成菜單設定
+    管理員 -> FE : 關閉提醒（或系統自動偵測）
+    FE -> BE : POST /api/admin/notifications/menu-check/dismiss
+    BE -> DB : 記錄當日已標記為處理
+    DB --> BE : 成功
+    BE --> FE : 回傳成功
+    FE --> 管理員 : 移除頂部橫幅提醒
+else 無未設定日期 OR 已標記處理
+    BE --> FE : 回傳空清單
+    FE --> 管理員 : 不顯示提醒
+end
+@enduml

@@ -1,0 +1,7 @@
+@startuml A014-er
+entity "work_calendar" {
+    * date : DATE <<PK>>
+    --
+    * is_workday : BOOLEAN
+}
+@enduml

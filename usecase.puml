@@ -229,4 +229,42 @@ Admin --> A013_UC4
 A013_UC1 .> A013_UC3 : <<include>>
 A013_UC2 .> A013_UC3 : <<include>>
 
+rectangle "A014 上班日行事曆設定" {
+    usecase "瀏覽行事曆" as A014_UC1
+    usecase "切換年／月" as A014_UC2
+    usecase "預產整年行事曆" as A014_UC3
+    usecase "進入編輯模式" as A014_UC4
+    usecase "切換日期上班日／非上班日" as A014_UC5
+    usecase "儲存行事曆變更" as A014_UC6
+    usecase "上傳 CSV" as A014_UC7
+    usecase "預覽 CSV 內容並確認" as A014_UC8
+}
+
+' A014
+Admin --> A014_UC1
+Admin --> A014_UC2
+Admin --> A014_UC3
+Admin --> A014_UC4
+Admin --> A014_UC7
+A014_UC4 .> A014_UC5 : <<include>>
+A014_UC5 .> A014_UC6 : <<include>>
+A014_UC7 .> A014_UC8 : <<include>>
+
+rectangle "A015 便當菜單設定提醒" {
+    usecase "每日檢查菜單設定狀況" as A015_UC1
+    usecase "發送 Email 通知管理員" as A015_UC2
+    usecase "進入系統時即時檢查" as A015_UC3
+    usecase "跳轉至菜單設定頁面" as A015_UC4
+    usecase "顯示彈出視窗與頂部橫幅" as A015_UC5
+    usecase "標記當日已處理" as A015_UC6
+}
+
+' A015
+Scheduler --> A015_UC1
+Admin --> A015_UC3
+Admin --> A015_UC6
+A015_UC1 .> A015_UC2 : <<include>>
+A015_UC3 .> A015_UC4 : <<include>>
+A015_UC3 .> A015_UC5 : <<include>>
+
 @enduml

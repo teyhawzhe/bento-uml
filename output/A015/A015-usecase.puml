@@ -1,0 +1,26 @@
+@startuml A015-usecase
+left to right direction
+skinparam actorStyle awesome
+
+actor 管理員
+actor 系統
+
+rectangle "便當菜單設定提醒" {
+    usecase "每日檢查菜單設定狀況" as UC1
+    usecase "發送 Email 通知管理員" as UC2
+    usecase "進入系統時即時檢查" as UC3
+    usecase "跳轉至菜單設定頁面" as UC4
+    usecase "顯示彈出視窗與頂部橫幅" as UC5
+    usecase "標記當日已處理（不再提醒）" as UC6
+}
+
+系統 --> UC1
+系統 --> UC2
+管理員 --> UC3
+管理員 --> UC6
+
+UC1 ..> UC2 : <<include>>
+UC3 ..> UC4 : <<include>>
+UC3 ..> UC5 : <<include>>
+UC6 ..> UC3 : <<extend>>
+@enduml
