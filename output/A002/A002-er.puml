@@ -51,6 +51,12 @@ entity "orders\n訂餐記錄資料表" as orders {
   * created_at : DATETIME（建立時間）
 }
 
+entity "work_calendar\n上班日行事曆（A014）" as work_calendar {
+  * date : DATE <<PK>>
+  --
+  * is_workday : BOOLEAN（是否上班日）
+}
+
 suppliers ||--o{ menus : "提供"
 employees ||--o{ menus : "建立"
 employees ||--o{ orders : "訂餐（employee_id）"

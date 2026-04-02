@@ -7,6 +7,10 @@ actor 員工
 actor 系統管理員
 
 rectangle 訂便當系統 {
+  usecase "以行事曆視圖瀏覽訂餐狀態" as UC12
+  usecase "從行事曆訂餐（空白日期）" as UC13
+  usecase "從行事曆修改已訂便當" as UC14
+  usecase "從行事曆取消已訂便當" as UC15
   usecase "瀏覽下週便當選項" as UC1
   usecase "選擇指定工作日的便當" as UC2
   usecase "更新已訂的便當" as UC8
@@ -20,11 +24,19 @@ rectangle 訂便當系統 {
   usecase "取消指定員工的訂餐" as UC7
 }
 
+員工 --> UC12
+員工 --> UC13
+員工 --> UC14
+員工 --> UC15
 員工 --> UC1
 員工 --> UC2
 員工 --> UC8
 員工 --> UC3
 員工 --> UC4
+
+UC13 .> UC12 : <<include>>
+UC14 .> UC12 : <<include>>
+UC15 .> UC12 : <<include>>
 
 系統管理員 --> UC11
 系統管理員 --> UC5

@@ -8,6 +8,82 @@ participant 前端 as FE
 participant 後端 as BE
 database 資料庫 as DB
 
+== 員工載入行事曆訂餐頁面 ==
+員工 -> FE : 進入訂餐頁面
+FE -> BE : GET /api/calendar?year={year}&month={month}（JWT Token）
+BE -> DB : 查詢指定年月上班日資料（work_calendar）
+DB --> BE : 回傳上班日清單
+BE --> FE : 200 回傳上班日資料
+FE -> BE : GET /api/orders/me（JWT Token）
+BE -> DB : 查詢員工本月訂餐記錄
+DB --> BE : 回傳訂餐記錄
+BE --> FE : 200 回傳訂餐記錄
+FE --> 員工 : 顯示本月行事曆（非上班日不可互動，已訂日期顯示便當名稱）
+
+== 員工從行事曆空白日期訂餐 ==
+員工 -> FE : 點擊空白可訂日期
+FE -> BE : GET /api/orders/menu（JWT Token）
+BE -> BE : 檢查截止時間（星期五 12:00）
+alt 已截止
+  BE --> FE : 回傳截止提示
+  FE --> 員工 : 彈出視窗顯示截止提示，不可訂餐
+else 未截止
+  BE -> DB : 查詢該日有效便當清單
+  DB --> BE : 回傳便當清單（不含 price）
+  BE --> FE : 200 回傳便當清單
+  FE --> 員工 : 彈出視窗顯示可選便當清單
+  員工 -> FE : 選擇便當後送出
+  FE -> BE : POST /api/orders（JWT Token）
+  BE -> DB : 查詢該員工該日是否已有訂單
+  alt 已有訂單
+    BE -> DB : UPDATE orders（覆蓋為新便當）
+    DB --> BE : 更新成功
+    BE --> FE : 200 訂餐成功（覆蓋）
+  else 尚無訂單
+    BE -> DB : INSERT orders
+    DB --> BE : 新增成功
+    BE --> FE : 201 訂餐成功
+  end
+  FE --> 員工 : 關閉視窗，行事曆該日格顯示已訂便當名稱
+end
+
+== 員工從行事曆修改已訂便當 ==
+員工 -> FE : 點擊已有訂單日期
+FE --> 員工 : 彈出視窗顯示已訂便當資訊及「修改」「取消」按鈕
+員工 -> FE : 點擊「修改」
+FE --> 員工 : 顯示確認提示
+員工 -> FE : 確認修改
+FE -> BE : PATCH /api/orders/{id}（JWT Token）
+BE -> BE : 檢查截止時間（星期五 12:00）
+alt 已截止
+  BE --> FE : 回傳截止提示
+  FE --> 員工 : 顯示無法修改
+else 未截止
+  BE -> DB : UPDATE orders SET menu_id = 新便當
+  DB --> BE : 更新成功
+  BE --> FE : 200 更新成功
+  FE --> 員工 : 關閉視窗，行事曆更新顯示
+end
+
+== 員工從行事曆取消已訂便當 ==
+員工 -> FE : 點擊已有訂單日期
+FE --> 員工 : 彈出視窗顯示已訂便當資訊及「修改」「取消」按鈕
+員工 -> FE : 點擊「取消」
+FE --> 員工 : 顯示確認提示
+員工 -> FE : 確認取消
+FE -> FE : 檢查當前時間是否在訂餐日前一日 16:30 前
+FE -> BE : DELETE /api/orders/{id}（JWT Token）
+BE -> BE : 驗證是否在訂餐日前一日 16:30 前
+alt 已超過截止時間
+  BE --> FE : 403 已超過截止時間
+  FE --> 員工 : 顯示錯誤提示
+else 未超過截止時間
+  BE -> DB : 刪除訂餐記錄
+  DB --> BE : 確認刪除成功
+  BE --> FE : 200 取消成功
+  FE --> 員工 : 關閉視窗，行事曆該日格清空
+end
+
 == 管理員建立菜單 ==
 系統管理員 -> FE : 輸入便當資訊與有效期間
 FE -> BE : POST /api/menus（JWT Token）

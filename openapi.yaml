@@ -1032,6 +1032,48 @@ paths:
 
   # ==================== A002 ====================
 
+  /api/calendar:
+    get:
+      tags: [A002 員工訂餐]
+      summary: 取得指定年月的上班日資料（供員工端行事曆使用）
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: 年份（例如 2026）
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          description: 月份（1-12）
+      responses:
+        '200':
+          description: 指定年月的上班日清單
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            date:
+                              type: string
+                              format: date
+                              description: 日期（yyyy-MM-dd）
+                            is_workday:
+                              type: boolean
+                              description: 是否為上班日
+
   /api/orders/menu:
     get:
       tags: [A002 員工訂餐]

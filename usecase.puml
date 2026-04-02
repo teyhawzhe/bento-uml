@@ -22,6 +22,10 @@ rectangle "A001 內部員工登入驗證" {
 }
 
 rectangle "A002 員工訂便當" {
+    usecase "以行事曆視圖瀏覽訂餐狀態" as A002_UC11
+    usecase "從行事曆訂餐（空白日期）" as A002_UC12
+    usecase "從行事曆修改已訂便當" as A002_UC13
+    usecase "從行事曆取消已訂便當" as A002_UC14
     usecase "瀏覽下週便當選項" as A002_UC1
     usecase "選擇指定工作日的便當" as A002_UC2
     usecase "更新已訂的便當" as A002_UC3
@@ -130,6 +134,10 @@ A001_UC1 .> A001_UC2 : <<extend>>
 A001_UC6 .> A001_UC2 : <<extend>>
 
 ' A002
+Employee --> A002_UC11
+Employee --> A002_UC12
+Employee --> A002_UC13
+Employee --> A002_UC14
 Employee --> A002_UC1
 Employee --> A002_UC2
 Employee --> A002_UC3
@@ -141,6 +149,9 @@ Admin --> A002_UC8
 Admin --> A002_UC9
 Admin --> A002_UC10
 A002_UC6 .> A002_UC7 : <<include>>
+A002_UC12 .> A002_UC11 : <<include>>
+A002_UC13 .> A002_UC11 : <<include>>
+A002_UC14 .> A002_UC11 : <<include>>
 
 ' A003
 Scheduler --> A003_UC1
